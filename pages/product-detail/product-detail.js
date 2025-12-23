@@ -2,6 +2,8 @@ const { t, getLang } = require('../../utils/i18n')
 const { getProductDetail, addFavorite, removeFavorite } = require('../../utils/api')
 const { ensureLogin } = require('../../utils/auth')
 
+const FAV_CHANGED_KEY = 'favChanged'
+
 Page({
   data: {
     lang: getLang(),
@@ -74,15 +76,20 @@ Page({
     if (!id) return
 
     this.setData({ favLoading: true })
-    return ensureLogin()
-      .catch(() => '')
-      .then(() => {
+    return ensureLogin().then((token) => {
+      if (!token) {
+        wx.showToast({ title: t('common.needLogin', 'Please login'), icon: 'none' })
+        return
+      }
         if (this.data.favorited) return removeFavorite(id)
         return addFavorite(id)
       })
       .then(() => {
         const next = !this.data.favorited
         this.setData({ favorited: next })
+        try {
+          wx.setStorageSync(FAV_CHANGED_KEY, { id, favorited: next, ts: Date.now() })
+        } catch (e) {}
         wx.showToast({ title: next ? this.data.labels.favorited : this.data.labels.unfavorited, icon: 'none' })
       })
       .catch((err) => {

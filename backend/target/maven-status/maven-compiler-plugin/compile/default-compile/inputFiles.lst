@@ -57,9 +57,11 @@
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/service/AuthHeaderService.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/service/CategoryService.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/service/ContactService.java
+/Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/service/ForbiddenException.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/service/JwtService.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/service/LangUtil.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/service/NotFoundException.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/service/ProductService.java
+/Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/service/UnauthorizedException.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/service/UserContext.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/service/WechatAuthService.java

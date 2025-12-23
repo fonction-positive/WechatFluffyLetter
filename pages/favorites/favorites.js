@@ -2,6 +2,8 @@ const { t, getLang } = require('../../utils/i18n')
 const { getFavorites, removeFavorite } = require('../../utils/api')
 const { ensureLogin } = require('../../utils/auth')
 
+const FAV_CHANGED_KEY = 'favChanged'
+
 Page({
   data: {
     lang: getLang(),
@@ -26,6 +28,7 @@ Page({
   onShow() {
     this.refreshLabels()
     wx.setNavigationBarTitle({ title: this.data.labels.title })
+    this.applyFavChanged()
   },
   onPullDownRefresh() {
     this.reload().finally(() => wx.stopPullDownRefresh())
@@ -54,9 +57,13 @@ Page({
     if (!this.data.hasMore && !isReload) return Promise.resolve()
 
     this.setData({ loading: true })
-    return ensureLogin()
-      .catch(() => '')
-      .then(() => getFavorites({ page: this.data.page, size: this.data.size }))
+    return ensureLogin().then((token) => {
+      if (!token) {
+        wx.showToast({ title: t('common.needLogin', 'Please login'), icon: 'none' })
+        return []
+      }
+      return getFavorites({ page: this.data.page, size: this.data.size })
+    })
       .then((list) => {
         const items = (list || []).map(normalizeProductListItem)
         const next = this.data.items.concat(items)
@@ -90,16 +97,39 @@ Page({
     // 阻止 card click
     if (e && e.stopPropagation) e.stopPropagation()
 
-    return ensureLogin()
-      .catch(() => '')
-      .then(() => removeFavorite(id))
+    return ensureLogin().then((token) => {
+      if (!token) {
+        wx.showToast({ title: t('common.needLogin', 'Please login'), icon: 'none' })
+        return
+      }
+      return removeFavorite(id)
+    })
       .then(() => {
         const next = this.data.items.filter((x) => String(x.id) !== String(id))
         this.setData({ items: next })
+
+        try {
+          wx.setStorageSync(FAV_CHANGED_KEY, { id, favorited: false, ts: Date.now() })
+        } catch (e) {}
       })
       .catch(() => {
         wx.showToast({ title: t('common.networkError', 'Network error'), icon: 'none' })
       })
+  },
+
+  applyFavChanged() {
+    let changed = null
+    try {
+      changed = wx.getStorageSync(FAV_CHANGED_KEY)
+    } catch (e) {
+      changed = null
+    }
+    if (!changed || !changed.id) return
+    if (changed.favorited !== false) return
+
+    const idKey = String(changed.id)
+    const next = (this.data.items || []).filter((x) => String(x.id) !== idKey)
+    if (next.length !== (this.data.items || []).length) this.setData({ items: next })
   },
 })
 

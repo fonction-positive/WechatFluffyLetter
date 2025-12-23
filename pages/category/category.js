@@ -1,6 +1,8 @@
 const { t, getLang } = require('../../utils/i18n')
-const { getCategories, getProducts } = require('../../utils/api')
+const { getCategories, getProducts, addFavorite, removeFavorite } = require('../../utils/api')
 const { ensureLogin } = require('../../utils/auth')
+
+const FAV_CHANGED_KEY = 'favChanged'
 
 Page({
   data: {
@@ -12,6 +14,8 @@ Page({
       loading: t('common.loading', 'Loading'),
       noMore: t('pages.index.noMore', 'No more'),
       searchPlaceholder: t('pages.category.searchPlaceholder', 'Search products'),
+      favorited: t('pages.product.favorited', 'Favorited'),
+      unfavorited: t('pages.product.unfavorited', 'Favorite'),
     },
     keyword: '',
     keywordFocus: false,
@@ -23,6 +27,7 @@ Page({
     size: 10,
     hasMore: true,
     loading: false,
+    favLoadingId: '',
   },
   onLoad(query) {
     const focus = query && String(query.focus || '') === '1'
@@ -34,6 +39,7 @@ Page({
   onShow() {
     this.refreshLabels()
     wx.setNavigationBarTitle({ title: this.data.labels.title })
+    this.applyFavChanged()
   },
   onPullDownRefresh() {
     this.reload().finally(() => wx.stopPullDownRefresh())
@@ -51,6 +57,8 @@ Page({
         loading: t('common.loading', 'Loading'),
         noMore: t('pages.index.noMore', 'No more'),
         searchPlaceholder: t('pages.category.searchPlaceholder', 'Search products'),
+        favorited: t('pages.product.favorited', 'Favorited'),
+        unfavorited: t('pages.product.unfavorited', 'Favorite'),
       },
     })
   },
@@ -136,6 +144,66 @@ Page({
     const id = e.currentTarget.dataset.id
     if (!id) return
     wx.navigateTo({ url: `/pages/product-detail/product-detail?id=${id}` })
+  },
+
+  onToggleFavorite(e) {
+    const id = e && e.currentTarget && e.currentTarget.dataset && e.currentTarget.dataset.id
+    if (!id) return
+
+    const key = String(id)
+    if (String(this.data.favLoadingId || '') === key) return
+
+    const current = !!(e.currentTarget.dataset && e.currentTarget.dataset.favorited)
+
+    this.setData({ favLoadingId: key })
+    return ensureLogin()
+      .then((token) => {
+        if (!token) {
+          wx.showToast({ title: t('common.needLogin', 'Please login'), icon: 'none' })
+          return
+        }
+        if (current) return removeFavorite(id)
+        return addFavorite(id)
+      })
+      .then(() => {
+        const next = !current
+        const products = (this.data.products || []).map((p) => {
+          if (String(p.id) !== key) return p
+          return { ...p, favorited: next }
+        })
+        this.setData({ products })
+        this.applyFilter()
+        wx.setStorageSync(FAV_CHANGED_KEY, { id, favorited: next, ts: Date.now() })
+        wx.showToast({ title: next ? this.data.labels.favorited : this.data.labels.unfavorited, icon: 'none' })
+      })
+      .catch((err) => {
+        if (err && err.statusCode === 401) {
+          wx.showToast({ title: 'Unauthorized', icon: 'none' })
+          return
+        }
+        wx.showToast({ title: t('common.networkError', 'Network error'), icon: 'none' })
+      })
+      .finally(() => {
+        if (String(this.data.favLoadingId || '') === key) this.setData({ favLoadingId: '' })
+      })
+  },
+
+  applyFavChanged() {
+    let changed = null
+    try {
+      changed = wx.getStorageSync(FAV_CHANGED_KEY)
+    } catch (e) {
+      changed = null
+    }
+    if (!changed || !changed.id) return
+
+    const idKey = String(changed.id)
+    const products = (this.data.products || []).map((p) => {
+      if (String(p.id) !== idKey) return p
+      return { ...p, favorited: !!changed.favorited }
+    })
+    this.setData({ products })
+    this.applyFilter()
   },
 })
 

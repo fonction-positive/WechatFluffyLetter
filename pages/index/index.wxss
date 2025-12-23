@@ -95,6 +95,12 @@
   justify-content: space-between;
 }
 
+.name-right {
+  display: flex;
+  align-items: center;
+  gap: 10rpx;
+}
+
 .name {
   font-size: 30rpx;
   font-weight: 600;
@@ -104,6 +110,11 @@
 .fav {
   color: black;
   font-size: 28rpx;
+}
+
+.fav-btn {
+  padding: 0 14rpx;
+  line-height: 1.8;
 }
 
 .brief {

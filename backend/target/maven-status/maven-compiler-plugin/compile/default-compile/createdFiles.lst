@@ -28,6 +28,7 @@ com/fluffyletter/repository/ContactInfoRepository.class
 com/fluffyletter/controller/ApiProductController.class
 com/fluffyletter/service/ContactService.class
 com/fluffyletter/service/WechatAuthService$1.class
+com/fluffyletter/service/ForbiddenException.class
 com/fluffyletter/service/ProductService.class
 com/fluffyletter/service/NotFoundException.class
 com/fluffyletter/service/UserContext.class
@@ -52,6 +53,7 @@ com/fluffyletter/entity/Category.class
 com/fluffyletter/config/FluffyProperties$Jwt.class
 com/fluffyletter/dto/ApiResponse.class
 com/fluffyletter/service/CategoryService.class
+com/fluffyletter/service/UnauthorizedException.class
 com/fluffyletter/controller/AuthController.class
 com/fluffyletter/controller/AdminCategoryController.class
 com/fluffyletter/controller/AdminWechatUserController.class

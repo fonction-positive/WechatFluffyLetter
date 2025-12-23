@@ -14,7 +14,7 @@ public class AuthHeaderService {
 
     public UserContext requireUser(String authorizationHeader) {
         if (authorizationHeader == null || authorizationHeader.isBlank()) {
-            throw new IllegalArgumentException("missing Authorization header");
+            throw new UnauthorizedException("missing Authorization header");
         }
 
         String token = authorizationHeader;
@@ -23,18 +23,28 @@ public class AuthHeaderService {
         }
 
         if (token.isBlank()) {
-            throw new IllegalArgumentException("empty token");
+            throw new UnauthorizedException("empty token");
         }
 
-        Claims claims = jwtService.parse(token);
+        final Claims claims;
+        try {
+            claims = jwtService.parse(token);
+        } catch (Exception ex) {
+            throw new UnauthorizedException("invalid token", ex);
+        }
 
         Object typeObj = claims.get("type");
         String type = typeObj == null ? "" : String.valueOf(typeObj);
         if (!type.isBlank() && !"user".equals(type)) {
-            throw new IllegalArgumentException("token type mismatch");
+            throw new ForbiddenException("token type mismatch");
         }
 
-        Long userId = Long.valueOf(claims.getSubject());
+        final Long userId;
+        try {
+            userId = Long.valueOf(claims.getSubject());
+        } catch (Exception ex) {
+            throw new UnauthorizedException("invalid token subject", ex);
+        }
         Object openidObj = claims.get("openid");
         String openid = openidObj == null ? "" : String.valueOf(openidObj);
         return new UserContext(userId, openid);
@@ -42,7 +52,7 @@ public class AuthHeaderService {
 
     public AdminContext requireAdmin(String authorizationHeader) {
         if (authorizationHeader == null || authorizationHeader.isBlank()) {
-            throw new IllegalArgumentException("missing Authorization header");
+            throw new UnauthorizedException("missing Authorization header");
         }
 
         String token = authorizationHeader;
@@ -51,17 +61,27 @@ public class AuthHeaderService {
         }
 
         if (token.isBlank()) {
-            throw new IllegalArgumentException("empty token");
+            throw new UnauthorizedException("empty token");
         }
 
-        Claims claims = jwtService.parse(token);
+        final Claims claims;
+        try {
+            claims = jwtService.parse(token);
+        } catch (Exception ex) {
+            throw new UnauthorizedException("invalid token", ex);
+        }
         Object typeObj = claims.get("type");
         String type = typeObj == null ? "" : String.valueOf(typeObj);
         if (!"admin".equals(type)) {
-            throw new IllegalArgumentException("token type mismatch");
+            throw new ForbiddenException("token type mismatch");
         }
 
-        Long adminId = Long.valueOf(claims.getSubject());
+        final Long adminId;
+        try {
+            adminId = Long.valueOf(claims.getSubject());
+        } catch (Exception ex) {
+            throw new UnauthorizedException("invalid token subject", ex);
+        }
         Object roleObj = claims.get("role");
         String role = roleObj == null ? "" : String.valueOf(roleObj);
         return new AdminContext(adminId, role);
