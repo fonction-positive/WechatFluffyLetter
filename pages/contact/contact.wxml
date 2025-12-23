@@ -1,0 +1,15 @@
+<view class="page">
+  <view class="block">
+    <view class="row">
+      <text class="label">{{labels.wechatId}}</text>
+      <text class="value">{{contact.wechatId}}</text>
+      <button size="mini" bindtap="onCopy" wx:if="{{contact.wechatId}}">{{labels.copy}}</button>
+    </view>
+  </view>
+
+  <view class="block" wx:if="{{contact.qrcodeUrl}}">
+    <image class="qrcode" mode="aspectFit" src="{{contact.qrcodeUrl}}"></image>
+  </view>
+
+  <view class="loading" wx:if="{{loading}}">{{labels.loading}}</view>
+</view>

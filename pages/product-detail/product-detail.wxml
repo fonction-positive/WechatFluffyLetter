@@ -1,0 +1,37 @@
+<view class="page">
+  <swiper class="swiper" indicator-dots="true" autoplay="false" circular="true">
+    <block wx:for="{{images}}" wx:key="*this">
+      <swiper-item>
+        <image class="img" mode="aspectFill" src="{{item}}"></image>
+      </swiper-item>
+    </block>
+    <block wx:if="{{images.length === 0}}">
+      <swiper-item>
+        <view class="img-placeholder"></view>
+      </swiper-item>
+    </block>
+  </swiper>
+
+  <view class="body">
+    <view class="title-row">
+      <text class="name">{{product.name}}</text>
+      <button size="mini" bindtap="onToggleFavorite" loading="{{favLoading}}">
+        {{favorited ? labels.favorited : labels.unfavorited}}
+      </button>
+    </view>
+
+    <view class="price-row" wx:if="{{product.price != null || product.discountPrice != null}}">
+      <text wx:if="{{product.discountPrice != null}}" class="price">¥{{product.discountPrice}}</text>
+      <text wx:elif="{{product.price != null}}" class="price">¥{{product.price}}</text>
+      <text wx:if="{{product.discountPrice != null && product.price != null}}" class="price-old">¥{{product.price}}</text>
+    </view>
+
+    <text class="brief" wx:if="{{product.brief}}">{{product.brief}}</text>
+
+    <view class="desc" wx:if="{{product.description}}">
+      <text class="desc-text">{{product.description}}</text>
+    </view>
+
+    <view class="loading" wx:if="{{loading}}">{{labels.loading}}</view>
+  </view>
+</view>

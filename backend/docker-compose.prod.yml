@@ -2,32 +2,46 @@ services:
   mysql:
     image: mysql:8.0
     container_name: fluffyletter-mysql
+    restart: unless-stopped
     environment:
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
       MYSQL_DATABASE: ${MYSQL_DATABASE:-fluffyletter}
       TZ: Asia/Shanghai
-    ports:
-      - "3306:3306"
     command:
       - --character-set-server=utf8mb4
       - --collation-server=utf8mb4_unicode_ci
     volumes:
       - mysql_data:/var/lib/mysql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "127.0.0.1", "-proot"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
 
   backend:
     build:
       context: .
       dockerfile: Dockerfile
     container_name: fluffyletter-backend
+    restart: unless-stopped
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
     environment:
-      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/fluffyletter?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/${MYSQL_DATABASE:-fluffyletter}?useUnicode=true&characterEncoding=utf8&useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Shanghai
       SPRING_DATASOURCE_USERNAME: root
       SPRING_DATASOURCE_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root}
+
       FLUFFY_WECHAT_APPID: ${FLUFFY_WECHAT_APPID:-}
       FLUFFY_WECHAT_SECRET: ${FLUFFY_WECHAT_SECRET:-}
       FLUFFY_JWT_SECRET: ${FLUFFY_JWT_SECRET:-change_me_to_a_long_random_secret_key_32_chars_min}
+
+      ADMIN_BOOTSTRAP_USERNAME: ${ADMIN_BOOTSTRAP_USERNAME:-}
+      ADMIN_BOOTSTRAP_PASSWORD: ${ADMIN_BOOTSTRAP_PASSWORD:-}
+      ADMIN_BOOTSTRAP_ROLE: ${ADMIN_BOOTSTRAP_ROLE:-superadmin}
+
+      # 可选：JVM 参数（如内存/GC/时区等）
+      JAVA_OPTS: ${JAVA_OPTS:-}
     ports:
       - "${BACKEND_PORT:-7070}:8080"
 

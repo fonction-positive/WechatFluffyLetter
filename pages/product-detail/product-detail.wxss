@@ -1,0 +1,89 @@
+page {
+  height: 100vh;
+}
+
+.page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+}
+
+.swiper {
+  width: 100%;
+  height: 520rpx;
+}
+
+.img {
+  width: 100%;
+  height: 520rpx;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.img-placeholder {
+  width: 100%;
+  height: 520rpx;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.body {
+  flex: 1;
+  padding: 20rpx;
+}
+
+.title-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+}
+
+.name {
+  font-size: 34rpx;
+  font-weight: 600;
+  color: black;
+}
+
+.price-row {
+  display: flex;
+  align-items: baseline;
+  gap: 12rpx;
+  margin-top: 12rpx;
+}
+
+.price {
+  color: black;
+  font-size: 34rpx;
+  font-weight: 600;
+}
+
+.price-old {
+  color: #aaa;
+  font-size: 26rpx;
+  text-decoration: line-through;
+}
+
+.brief {
+  display: block;
+  margin-top: 10rpx;
+  color: #aaa;
+  font-size: 26rpx;
+}
+
+.desc {
+  margin-top: 20rpx;
+  padding-top: 16rpx;
+  border-top: 1px solid rgba(0, 0, 0, 0.08);
+}
+
+.desc-text {
+  color: black;
+  font-size: 28rpx;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}
+
+.loading {
+  margin-top: 30rpx;
+  color: #aaa;
+  text-align: center;
+}

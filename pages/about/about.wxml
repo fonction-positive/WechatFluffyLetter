@@ -1,0 +1,6 @@
+<view class="page">
+  <view class="block">
+    <text class="title">{{labels.title}}</text>
+    <text class="desc">{{labels.desc}}</text>
+  </view>
+</view>

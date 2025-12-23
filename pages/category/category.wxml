@@ -1,0 +1,54 @@
+<view class="page">
+  <view class="searchbar">
+    <input
+      class="search-input"
+      placeholder="{{labels.searchPlaceholder}}"
+      value="{{keyword}}"
+      focus="{{keywordFocus}}"
+      confirm-type="search"
+      bindinput="onKeywordInput"
+      bindconfirm="onKeywordConfirm"
+    />
+  </view>
+
+  <scroll-view class="category-scroll" scroll-x="true" show-scrollbar="false">
+    <view class="category-row">
+      <block wx:for="{{categories}}" wx:key="id">
+        <view
+          class="category-item {{activeCategoryId === item.id ? 'active' : ''}}"
+          data-id="{{item.id}}"
+          bindtap="onSelectCategory"
+        >
+          <text>{{item.name}}</text>
+        </view>
+      </block>
+    </view>
+  </scroll-view>
+
+  <view class="list">
+    <block wx:if="{{displayProducts.length === 0 && !loading}}">
+      <view class="empty">{{labels.empty}}</view>
+    </block>
+
+    <block wx:for="{{displayProducts}}" wx:key="id">
+      <view class="card" data-id="{{item.id}}" bindtap="onTapProduct">
+        <image class="cover" mode="aspectFill" src="{{item.coverImage}}"></image>
+        <view class="content">
+          <view class="name-row">
+            <text class="name">{{item.name}}</text>
+            <text wx:if="{{item.favorited}}" class="fav">★</text>
+          </view>
+          <text class="brief">{{item.brief}}</text>
+          <view class="price-row">
+            <text wx:if="{{item.discountPrice != null}}" class="price">¥{{item.discountPrice}}</text>
+            <text wx:elif="{{item.price != null}}" class="price">¥{{item.price}}</text>
+            <text wx:if="{{item.discountPrice != null && item.price != null}}" class="price-old">¥{{item.price}}</text>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <view wx:if="{{loading}}" class="loading">{{labels.loading}}</view>
+    <view wx:if="{{!hasMore && displayProducts.length>0}}" class="no-more">{{labels.noMore}}</view>
+  </view>
+</view>

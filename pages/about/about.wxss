@@ -1,0 +1,28 @@
+page {
+  height: 100vh;
+}
+
+.page {
+  padding: 20rpx;
+}
+
+.block {
+  border: 1px solid rgba(0, 0, 0, 0.08);
+  border-radius: 16rpx;
+  padding: 16rpx;
+}
+
+.title {
+  display: block;
+  font-size: 34rpx;
+  font-weight: 700;
+  color: black;
+  margin-bottom: 12rpx;
+}
+
+.desc {
+  color: #aaa;
+  font-size: 28rpx;
+  line-height: 1.6;
+  white-space: pre-wrap;
+}

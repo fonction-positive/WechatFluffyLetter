@@ -194,7 +194,7 @@ CREATE DATABASE fluffyletter DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unico
 启动后：
 
 - MySQL：`localhost:3306`
-- 后端：`http://localhost:8080`
+- 后端：`http://localhost:7070`（可在 `.env` 里用 `BACKEND_PORT` 覆盖）
 
 ---
 
@@ -241,6 +241,7 @@ CREATE DATABASE fluffyletter DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unico
 
 - 后端：`http://<服务器IP>:${BACKEND_PORT:-8080}`
 - 管理页面：`http://<服务器IP>:${BACKEND_PORT:-8080}/admin.html`
+- 默认端口：7070（可通过 `.env` 的 `BACKEND_PORT` 修改）
 
 ### 5) 重要说明（小程序上线必看）
 

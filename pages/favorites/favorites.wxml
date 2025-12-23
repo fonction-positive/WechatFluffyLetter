@@ -1,0 +1,25 @@
+<view class="page">
+  <view class="list">
+    <block wx:if="{{items.length === 0 && !loading}}">
+      <view class="empty">{{labels.empty}}</view>
+    </block>
+
+    <block wx:for="{{items}}" wx:key="id">
+      <view class="card" data-id="{{item.id}}" bindtap="onTapItem">
+        <image class="cover" mode="aspectFill" src="{{item.coverImage}}"></image>
+        <view class="content">
+          <text class="name">{{item.name}}</text>
+          <text class="brief">{{item.brief}}</text>
+          <view class="bottom">
+            <text class="price" wx:if="{{item.discountPrice != null}}">¥{{item.discountPrice}}</text>
+            <text class="price" wx:elif="{{item.price != null}}">¥{{item.price}}</text>
+            <button size="mini" bindtap="onRemove" data-id="{{item.id}}">{{labels.remove}}</button>
+          </view>
+        </view>
+      </view>
+    </block>
+
+    <view wx:if="{{loading}}" class="loading">{{labels.loading}}</view>
+    <view wx:if="{{!hasMore && items.length>0}}" class="no-more">{{labels.noMore}}</view>
+  </view>
+</view>
