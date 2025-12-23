@@ -5,223 +5,523 @@
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>FluffyLetter 管理后台</title>
   <style>
-    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; }
-    .row { display: flex; gap: 16px; flex-wrap: wrap; }
-    .card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; min-width: 320px; flex: 1; }
-    label { display: block; margin: 8px 0 4px; font-size: 12px; color: #333; }
-    input, textarea, select { width: 100%; padding: 8px; box-sizing: border-box; }
-    textarea { min-height: 88px; }
-    button { padding: 8px 12px; cursor: pointer; }
+    :root {
+      --border: #ddd;
+      --border-soft: #eee;
+      --text: #333;
+      --muted: #666;
+      --danger: #b00020;
+    }
+
+    * { box-sizing: border-box; }
+    body {
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+      margin: 0;
+      color: var(--text);
+    }
+
+    a { color: inherit; text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .app { padding: 20px; }
+    .topbar {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 16px;
+      padding: 12px 16px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+    }
+    .brand { display: flex; gap: 10px; align-items: baseline; }
+    .brand h2 { margin: 0; font-size: 18px; }
+    .brand .muted { margin: 0; }
+
+    .layout {
+      margin-top: 14px;
+      display: flex;
+      gap: 14px;
+      align-items: stretch;
+      min-height: calc(100vh - 20px - 20px - 14px - 58px);
+    }
+
+    .sidebar {
+      width: 240px;
+      flex: 0 0 240px;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 12px;
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+    }
+    .nav {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+    .nav a {
+      display: block;
+      padding: 10px 10px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+    }
+    .nav a.active {
+      border-color: var(--border);
+      font-weight: 600;
+      text-decoration: none;
+    }
+
+    .content {
+      flex: 1;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 16px;
+      min-width: 0;
+    }
+
+    .page-title { margin: 0 0 10px; font-size: 16px; }
+
+    .row { display: flex; gap: 14px; flex-wrap: wrap; align-items: flex-start; }
+    .card {
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px;
+      min-width: 320px;
+      flex: 1;
+      min-height: 1px;
+    }
+    .card h3 { margin: 0 0 10px; font-size: 14px; }
+    .card h4 { margin: 10px 0 8px; font-size: 13px; }
+
+    label { display: block; margin: 10px 0 6px; font-size: 12px; color: var(--text); }
+    input, textarea, select {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: transparent;
+    }
+    textarea { min-height: 92px; resize: vertical; }
+    input:focus, textarea:focus, select:focus {
+      outline: 2px solid var(--text);
+      outline-offset: 1px;
+    }
+
+    button {
+      padding: 10px 12px;
+      border-radius: 10px;
+      border: 1px solid var(--border);
+      background: transparent;
+      cursor: pointer;
+      line-height: 1;
+    }
+    button:hover { border-color: var(--text); }
+    button:disabled { opacity: 0.6; cursor: not-allowed; }
+
     table { width: 100%; border-collapse: collapse; }
-    th, td { border-bottom: 1px solid #eee; padding: 6px 4px; text-align: left; font-size: 12px; }
-    .muted { color: #666; font-size: 12px; }
-    .hidden { display: none; }
+    th, td { border-bottom: 1px solid var(--border-soft); padding: 8px 6px; text-align: left; font-size: 12px; white-space: nowrap; }
+    th { font-weight: 600; }
+
+    .muted { color: var(--muted); font-size: 12px; }
     .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
-    .danger { color: #b00020; }
+    .danger { color: var(--danger); }
+    .stack { display: flex; flex-direction: column; gap: 10px; }
+    .split { display: grid; grid-template-columns: 1fr 420px; gap: 14px; align-items: start; }
+    @media (max-width: 1100px) {
+      .sidebar { width: 100%; flex: 1 1 auto; }
+      .layout { flex-direction: column; }
+      .split { grid-template-columns: 1fr; }
+    }
   </style>
 </head>
 <body>
 
 <div id="app">
-  <h2>FluffyLetter 管理后台</h2>
-  <div class="muted">Vue 版（单页）：登录后可管理分类 / 商品 / 联系方式</div>
-
-  <div class="card">
-    <h3>1) 登录</h3>
-    <div class="row">
-      <div style="min-width:260px; flex:1;">
-        <label>用户名</label>
-        <input v-model.trim="loginForm.username" placeholder="admin" />
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <h2>FluffyLetter 管理后台</h2>
+        <div class="muted">Vue3 CDN · Hash 路由 · 无构建</div>
       </div>
-      <div style="min-width:260px; flex:1;">
-        <label>密码</label>
-        <input v-model="loginForm.password" type="password" placeholder="例如：admin123" />
-      </div>
-    </div>
-    <div class="actions" style="margin-top:12px;">
-      <button v-if="!authed" @click="doLogin">登录</button>
-      <button v-else @click="doLogout">退出</button>
-      <span class="muted">{{ loginStatus }}</span>
-    </div>
-  </div>
-
-  <div v-if="authed">
-    <div class="row" style="margin-top:16px;">
-
-      <div class="card">
-        <h3>2) 分类</h3>
-        <div class="actions">
-          <button @click="reloadCategories">刷新</button>
-          <span class="muted">{{ catStatus }}</span>
-        </div>
-        <div style="margin-top:8px; overflow:auto;">
-          <table>
-            <thead>
-            <tr>
-              <th>ID</th><th>code</th><th>中文名</th><th>英文名</th><th>排序</th><th>启用</th><th>操作</th>
-            </tr>
-            </thead>
-            <tbody>
-            <tr v-for="c in categories" :key="c.id">
-              <td>{{ c.id }}</td>
-              <td>{{ c.code }}</td>
-              <td>{{ c.nameZh }}</td>
-              <td>{{ c.nameEn }}</td>
-              <td>{{ c.sortOrder }}</td>
-              <td>{{ c.active }}</td>
-              <td class="actions">
-                <button @click="fillCategory(c)">填充</button>
-                <button class="danger" @click="deactivateCategory(c.id)">停用</button>
-              </td>
-            </tr>
-            </tbody>
-          </table>
-        </div>
-
-        <h4 style="margin-top:12px;">新增/更新（填写 ID 则更新）</h4>
-        <div class="row">
-          <div style="min-width:120px; flex:0 0 120px;">
-            <label>ID</label>
-            <input v-model.trim="categoryForm.id" placeholder="(空=新增)" />
-          </div>
-          <div style="min-width:160px; flex:1;">
-            <label>code</label>
-            <input v-model.trim="categoryForm.code" />
-          </div>
-          <div style="min-width:200px; flex:1;">
-            <label>nameZh</label>
-            <input v-model.trim="categoryForm.nameZh" />
-          </div>
-          <div style="min-width:200px; flex:1;">
-            <label>nameEn</label>
-            <input v-model.trim="categoryForm.nameEn" />
-          </div>
-          <div style="min-width:120px; flex:0 0 120px;">
-            <label>sortOrder</label>
-            <input v-model.number="categoryForm.sortOrder" type="number" />
-          </div>
-          <div style="min-width:120px; flex:0 0 120px;">
-            <label>active</label>
-            <select v-model="categoryForm.active">
-              <option :value="true">true</option>
-              <option :value="false">false</option>
-            </select>
-          </div>
-        </div>
-        <div class="actions" style="margin-top:8px;">
-          <button @click="saveCategory">保存</button>
-        </div>
-      </div>
-
-      <div class="card">
-        <h3>3) 联系方式</h3>
-        <div class="actions">
-          <button @click="loadContact">加载</button>
-          <button @click="saveContact">保存</button>
-          <span class="muted">{{ contactStatus }}</span>
-        </div>
-        <label>wechatId</label>
-        <input v-model="contactForm.wechatId" />
-        <label>qrcodeUrl</label>
-        <input v-model="contactForm.qrcodeUrl" placeholder="https://..." />
-      </div>
-
-    </div>
-
-    <div class="card" style="margin-top:16px;">
-      <h3>4) 商品</h3>
       <div class="actions">
-        <button @click="reloadProducts">刷新</button>
-        <span class="muted">{{ productStatus }}</span>
-        <span class="muted">（默认只展示第一页）</span>
+        <span class="muted">{{ loginStatus }}</span>
+        <button v-if="!authed" @click="doLogin" :disabled="busyLogin">登录</button>
+        <button v-else @click="doLogout">退出</button>
       </div>
-      <div style="margin-top:8px; overflow:auto;">
-        <table>
-          <thead>
-          <tr>
-            <th>ID</th><th>分类</th><th>价格</th><th>折扣价</th><th>热销</th><th>启用</th><th>中文名</th><th>英文名</th><th>操作</th>
-          </tr>
-          </thead>
-          <tbody>
-          <tr v-for="p in products" :key="p.id">
-            <td>{{ p.id }}</td>
-            <td>{{ p.categoryId }}</td>
-            <td>{{ p.price }}</td>
-            <td>{{ p.discountPrice ?? '' }}</td>
-            <td>{{ p.hot }}</td>
-            <td>{{ p.active }}</td>
-            <td>{{ p.nameZh }}</td>
-            <td>{{ p.nameEn }}</td>
-            <td class="actions">
-              <button @click="fillProduct(p.id)">填充</button>
-              <button class="danger" @click="deactivateProduct(p.id)">停用</button>
-            </td>
-          </tr>
-          </tbody>
-        </table>
-      </div>
+    </div>
 
-      <h4 style="margin-top:12px;">新增/更新（填写 ID 则更新）</h4>
-      <div class="row">
-        <div style="min-width:120px; flex:0 0 120px;">
-          <label>ID</label>
-          <input v-model.trim="productForm.id" placeholder="(空=新增)" />
-        </div>
-        <div style="min-width:220px; flex:0 0 220px;">
-          <label>category</label>
-          <select v-model="productForm.categoryId">
-            <option value="">请选择分类</option>
-            <option v-for="c in categories" :key="c.id" :value="String(c.id)">
-              {{ c.id }} - {{ c.nameZh }} ({{ c.code }})
-            </option>
-          </select>
-        </div>
-        <div style="min-width:140px; flex:0 0 140px;">
-          <label>price</label>
-          <input v-model="productForm.price" placeholder="9.99" />
-        </div>
-        <div style="min-width:140px; flex:0 0 140px;">
-          <label>discountPrice</label>
-          <input v-model="productForm.discountPrice" placeholder="(可空)" />
-        </div>
-        <div style="min-width:120px; flex:0 0 120px;">
-          <label>hot</label>
-          <select v-model="productForm.hot">
-            <option :value="true">true</option>
-            <option :value="false">false</option>
-          </select>
-        </div>
-        <div style="min-width:120px; flex:0 0 120px;">
-          <label>active</label>
-          <select v-model="productForm.active">
-            <option :value="true">true</option>
-            <option :value="false">false</option>
-          </select>
+    <div class="layout">
+      <div class="sidebar">
+        <div class="stack">
+          <div>
+            <div style="font-weight:600;">登录</div>
+            <div class="muted" style="margin-top:6px;">请先登录后再管理数据</div>
+            <label>用户名</label>
+            <input v-model.trim="loginForm.username" placeholder="admin" :disabled="authed" />
+            <label>密码</label>
+            <input v-model="loginForm.password" type="password" placeholder="例如：admin123" :disabled="authed" />
+          </div>
+
+          <div v-if="authed">
+            <div style="font-weight:600;">导航</div>
+            <div class="nav" style="margin-top:6px;">
+              <a :href="'#/categories'" :class="{active: route==='categories'}">分类</a>
+              <a :href="'#/products'" :class="{active: route==='products'}">商品</a>
+              <a :href="'#/contact'" :class="{active: route==='contact'}">联系我们</a>
+              <a :href="'#/wechat-users'" :class="{active: route==='wechat-users'}">微信用户</a>
+              <a :href="'#/favorites'" :class="{active: route==='favorites'}">收藏</a>
+              <a :href="'#/settings'" :class="{active: route==='settings'}">设置</a>
+            </div>
+          </div>
         </div>
       </div>
 
-      <div class="row">
-        <div class="card" style="flex:1; min-width:320px;">
-          <h4>中文(zh)</h4>
-          <label>name</label><input v-model="productForm.zh.name" />
-          <label>brief</label><input v-model="productForm.zh.brief" />
-          <label>description</label><textarea v-model="productForm.zh.description"></textarea>
+      <div class="content">
+        <div v-if="!authed">
+          <h3 class="page-title">请先登录</h3>
+          <div class="muted">登录后将显示分类/商品/联系我们/设置等页面。</div>
         </div>
-        <div class="card" style="flex:1; min-width:320px;">
-          <h4>英文(en)</h4>
-          <label>name</label><input v-model="productForm.en.name" />
-          <label>brief</label><input v-model="productForm.en.brief" />
-          <label>description</label><textarea v-model="productForm.en.description"></textarea>
+
+        <div v-else>
+          <!-- 分类页 -->
+          <div v-if="route==='categories'">
+            <h3 class="page-title">分类管理</h3>
+            <div class="split">
+              <div class="card" style="min-width: 0;">
+                <div class="actions">
+                  <button @click="reloadCategories">刷新列表</button>
+                  <span class="muted">{{ catStatus }}</span>
+                </div>
+                <div style="margin-top:10px; overflow:auto;">
+                  <table>
+                    <thead>
+                    <tr>
+                      <th>ID</th><th>code</th><th>中文名</th><th>英文名</th><th>排序</th><th>启用</th><th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="c in categories" :key="c.id">
+                      <td>{{ c.id }}</td>
+                      <td>{{ c.code }}</td>
+                      <td>{{ c.nameZh }}</td>
+                      <td>{{ c.nameEn }}</td>
+                      <td>{{ c.sortOrder }}</td>
+                      <td>{{ c.active }}</td>
+                      <td class="actions">
+                        <button @click="fillCategory(c)">编辑</button>
+                        <button class="danger" @click="deactivateCategory(c.id)">停用</button>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="card" style="min-width: 0;">
+                <h3>新增/更新</h3>
+                <div class="muted">填写 ID 则更新；留空则新增。</div>
+                <div class="row" style="margin-top:10px;">
+                  <div style="min-width:120px; flex:0 0 120px;">
+                    <label>ID</label>
+                    <input v-model.trim="categoryForm.id" placeholder="(空=新增)" />
+                  </div>
+                  <div style="min-width:160px; flex:1;">
+                    <label>code</label>
+                    <input v-model.trim="categoryForm.code" />
+                  </div>
+                </div>
+                <div class="row">
+                  <div style="min-width:200px; flex:1;">
+                    <label>nameZh</label>
+                    <input v-model.trim="categoryForm.nameZh" />
+                  </div>
+                  <div style="min-width:200px; flex:1;">
+                    <label>nameEn</label>
+                    <input v-model.trim="categoryForm.nameEn" />
+                  </div>
+                </div>
+                <div class="row">
+                  <div style="min-width:120px; flex:0 0 120px;">
+                    <label>sortOrder</label>
+                    <input v-model.number="categoryForm.sortOrder" type="number" />
+                  </div>
+                  <div style="min-width:120px; flex:0 0 120px;">
+                    <label>active</label>
+                    <select v-model="categoryForm.active">
+                      <option :value="true">true</option>
+                      <option :value="false">false</option>
+                    </select>
+                  </div>
+                </div>
+                <div class="actions" style="margin-top:10px;">
+                  <button @click="saveCategory">保存</button>
+                  <button @click="resetCategoryForm">清空表单</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 商品页 -->
+          <div v-else-if="route==='products'">
+            <h3 class="page-title">商品管理</h3>
+            <div class="split">
+              <div class="card" style="min-width:0;">
+                <div class="actions">
+                  <button @click="reloadProducts">刷新列表</button>
+                  <span class="muted">{{ productStatus }}</span>
+                  <span class="muted">（默认只展示第一页）</span>
+                </div>
+                <div style="margin-top:10px; overflow:auto;">
+                  <table>
+                    <thead>
+                    <tr>
+                      <th>ID</th><th>分类</th><th>价格</th><th>折扣价</th><th>热销</th><th>启用</th><th>中文名</th><th>英文名</th><th>操作</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    <tr v-for="p in products" :key="p.id">
+                      <td>{{ p.id }}</td>
+                      <td>{{ p.categoryId }}</td>
+                      <td>{{ p.price }}</td>
+                      <td>{{ p.discountPrice ?? '' }}</td>
+                      <td>{{ p.hot }}</td>
+                      <td>{{ p.active }}</td>
+                      <td>{{ p.nameZh }}</td>
+                      <td>{{ p.nameEn }}</td>
+                      <td class="actions">
+                        <button @click="fillProduct(p.id)">编辑</button>
+                        <button class="danger" @click="deactivateProduct(p.id)">停用</button>
+                      </td>
+                    </tr>
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+
+              <div class="card" style="min-width:0;">
+                <h3>新增/更新</h3>
+                <div class="muted">填写 ID 则更新；留空则新增。</div>
+
+                <div class="row" style="margin-top:10px;">
+                  <div style="min-width:120px; flex:0 0 120px;">
+                    <label>ID</label>
+                    <input v-model.trim="productForm.id" placeholder="(空=新增)" />
+                  </div>
+                  <div style="min-width:220px; flex:1;">
+                    <label>category</label>
+                    <select v-model="productForm.categoryId">
+                      <option value="">请选择分类</option>
+                      <option v-for="c in categories" :key="c.id" :value="String(c.id)">
+                        {{ c.id }} - {{ c.nameZh }} ({{ c.code }})
+                      </option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div style="min-width:140px; flex:1;">
+                    <label>price</label>
+                    <input v-model="productForm.price" placeholder="9.99" />
+                  </div>
+                  <div style="min-width:140px; flex:1;">
+                    <label>discountPrice</label>
+                    <input v-model="productForm.discountPrice" placeholder="(可空)" />
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div style="min-width:120px; flex:1;">
+                    <label>hot</label>
+                    <select v-model="productForm.hot">
+                      <option :value="true">true</option>
+                      <option :value="false">false</option>
+                    </select>
+                  </div>
+                  <div style="min-width:120px; flex:1;">
+                    <label>active</label>
+                    <select v-model="productForm.active">
+                      <option :value="true">true</option>
+                      <option :value="false">false</option>
+                    </select>
+                  </div>
+                </div>
+
+                <div class="row">
+                  <div class="card" style="flex:1; min-width:0;">
+                    <h4>中文(zh)</h4>
+                    <label>name</label><input v-model="productForm.zh.name" />
+                    <label>brief</label><input v-model="productForm.zh.brief" />
+                    <label>description</label><textarea v-model="productForm.zh.description"></textarea>
+                  </div>
+                  <div class="card" style="flex:1; min-width:0;">
+                    <h4>英文(en)</h4>
+                    <label>name</label><input v-model="productForm.en.name" />
+                    <label>brief</label><input v-model="productForm.en.brief" />
+                    <label>description</label><textarea v-model="productForm.en.description"></textarea>
+                  </div>
+                </div>
+
+                <div style="margin-top:10px;">
+                  <label>images（每行一个 URL；第一行默认 cover）</label>
+                  <textarea v-model="productForm.imagesText" placeholder="https://...\nhttps://..."></textarea>
+                </div>
+
+                <div class="actions" style="margin-top:10px;">
+                  <button @click="saveProduct">保存</button>
+                  <button @click="resetProductForm">清空表单</button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- 联系我们页 -->
+          <div v-else-if="route==='contact'">
+            <h3 class="page-title">联系我们</h3>
+            <div class="card" style="max-width:720px;">
+              <div class="actions">
+                <button @click="loadContact">加载</button>
+                <button @click="saveContact">保存</button>
+                <span class="muted">{{ contactStatus }}</span>
+              </div>
+              <label>wechatId</label>
+              <input v-model="contactForm.wechatId" />
+              <label>qrcodeUrl</label>
+              <input v-model="contactForm.qrcodeUrl" placeholder="https://..." />
+            </div>
+          </div>
+
+          <!-- 微信用户页 -->
+          <div v-else-if="route==='wechat-users'">
+            <h3 class="page-title">微信用户</h3>
+            <div class="card" style="min-width:0;">
+              <div class="actions">
+                <button @click="reloadWechatUsers">刷新列表</button>
+                <span class="muted">{{ wechatUserStatus }}</span>
+              </div>
+
+              <div class="row" style="margin-top:10px;">
+                <div style="min-width:140px; flex:0 0 140px;">
+                  <label>page</label>
+                  <input v-model.number="wechatUserQuery.page" type="number" min="1" />
+                </div>
+                <div style="min-width:140px; flex:0 0 140px;">
+                  <label>size</label>
+                  <input v-model.number="wechatUserQuery.size" type="number" min="1" max="100" />
+                </div>
+              </div>
+
+              <div style="margin-top:10px; overflow:auto;">
+                <table>
+                  <thead>
+                  <tr>
+                    <th>ID</th><th>openid</th><th>nickname</th><th>avatar</th><th>createdAt</th><th>updatedAt</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="u in wechatUsers" :key="u.id">
+                    <td>{{ u.id }}</td>
+                    <td style="max-width:260px; overflow:hidden; text-overflow:ellipsis;">{{ u.openid }}</td>
+                    <td>{{ u.nickname || '' }}</td>
+                    <td style="max-width:240px; overflow:hidden; text-overflow:ellipsis;">
+                      <a v-if="u.avatarUrl" :href="u.avatarUrl" target="_blank">查看</a>
+                      <span v-else class="muted">(空)</span>
+                    </td>
+                    <td>{{ u.createdAt }}</td>
+                    <td>{{ u.updatedAt }}</td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 收藏页 -->
+          <div v-else-if="route==='favorites'">
+            <h3 class="page-title">收藏管理</h3>
+            <div class="card" style="min-width:0;">
+              <div class="actions">
+                <button @click="reloadAdminFavorites">刷新列表</button>
+                <span class="muted">{{ adminFavoriteStatus }}</span>
+              </div>
+
+              <div class="row" style="margin-top:10px;">
+                <div style="min-width:140px; flex:0 0 140px;">
+                  <label>page</label>
+                  <input v-model.number="adminFavoriteQuery.page" type="number" min="1" />
+                </div>
+                <div style="min-width:140px; flex:0 0 140px;">
+                  <label>size</label>
+                  <input v-model.number="adminFavoriteQuery.size" type="number" min="1" max="100" />
+                </div>
+                <div style="min-width:180px; flex:0 0 180px;">
+                  <label>userId（可选）</label>
+                  <input v-model.trim="adminFavoriteQuery.userId" placeholder="例如 1" />
+                </div>
+                <div style="min-width:180px; flex:0 0 180px;">
+                  <label>productId（可选）</label>
+                  <input v-model.trim="adminFavoriteQuery.productId" placeholder="例如 100" />
+                </div>
+                <div class="actions" style="align-self:flex-end;">
+                  <button @click="resetAdminFavoriteQuery">清空筛选</button>
+                </div>
+              </div>
+
+              <div style="margin-top:10px; overflow:auto;">
+                <table>
+                  <thead>
+                  <tr>
+                    <th>ID</th><th>userId</th><th>openid</th><th>productId</th><th>中文名</th><th>英文名</th><th>createdAt</th><th>操作</th>
+                  </tr>
+                  </thead>
+                  <tbody>
+                  <tr v-for="f in adminFavorites" :key="f.id">
+                    <td>{{ f.id }}</td>
+                    <td>{{ f.userId }}</td>
+                    <td style="max-width:260px; overflow:hidden; text-overflow:ellipsis;">{{ f.openid }}</td>
+                    <td>{{ f.productId }}</td>
+                    <td>{{ f.productNameZh }}</td>
+                    <td>{{ f.productNameEn }}</td>
+                    <td>{{ f.createdAt }}</td>
+                    <td class="actions">
+                      <button class="danger" @click="deleteAdminFavorite(f.id)">删除</button>
+                    </td>
+                  </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </div>
+
+          <!-- 设置页 -->
+          <div v-else-if="route==='settings'">
+            <h3 class="page-title">设置</h3>
+            <div class="row">
+              <div class="card" style="min-width:320px; flex:0 0 420px;">
+                <h3>会话</h3>
+                <div class="muted">这里只做 token/刷新等基础操作（不新增后端接口）。</div>
+                <label>当前 token（截断显示）</label>
+                <input :value="maskedToken" readonly />
+                <div class="actions" style="margin-top:10px;">
+                  <button @click="refreshAll">刷新全部数据</button>
+                  <button class="danger" @click="doLogout">清除 token</button>
+                </div>
+              </div>
+
+              <div class="card" style="min-width:320px; flex:1;">
+                <h3>使用说明</h3>
+                <div class="muted">- 页面路由：# /categories /products /contact /wechat-users /favorites /settings</div>
+                <div class="muted">- 你的后端若开在非根路径，可用浏览器访问同域静态页即可。</div>
+                <div class="muted">- 登录后会自动尝试加载分类/商品/联系方式。</div>
+              </div>
+            </div>
+          </div>
+
+          <div v-else>
+            <h3 class="page-title">页面不存在</h3>
+            <div class="muted">请从左侧导航进入。</div>
+          </div>
         </div>
-      </div>
-
-      <div style="margin-top:8px;">
-        <label>images（每行一个 URL；第一行默认 cover）</label>
-        <textarea v-model="productForm.imagesText" placeholder="https://...\nhttps://..."></textarea>
-      </div>
-
-      <div class="actions" style="margin-top:8px;">
-        <button @click="saveProduct">保存</button>
       </div>
     </div>
   </div>
@@ -229,7 +529,7 @@
 
 <script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
 <script>
-  const { createApp, reactive, ref } = Vue
+  const { createApp, reactive, ref, computed, onMounted } = Vue
   const TOKEN_KEY = 'fluffy_admin_token'
 
   function getToken() {
@@ -264,6 +564,9 @@
     setup() {
       const authed = ref(!!getToken())
       const loginStatus = ref(authed.value ? '已检测到 token（可能过期），可直接刷新数据验证' : '')
+      const busyLogin = ref(false)
+
+      const route = ref('categories')
 
       const loginForm = reactive({ username: 'admin', password: '' })
 
@@ -295,7 +598,34 @@
         imagesText: ''
       })
 
+      const wechatUsers = ref([])
+      const wechatUserStatus = ref('')
+      const wechatUserQuery = reactive({ page: 1, size: 20 })
+
+      const adminFavorites = ref([])
+      const adminFavoriteStatus = ref('')
+      const adminFavoriteQuery = reactive({ page: 1, size: 20, userId: '', productId: '' })
+
+      const maskedToken = computed(() => {
+        const t = getToken() || ''
+        if (!t) return ''
+        if (t.length <= 16) return t
+        return t.slice(0, 8) + '...' + t.slice(-6)
+      })
+
+      function normalizeRoute(r) {
+        const v = String(r || '').replace(/^#\/?/, '').replace(/^\//, '')
+        if (['categories', 'products', 'contact', 'wechat-users', 'favorites', 'settings'].includes(v)) return v
+        return 'categories'
+      }
+
+      function syncRouteFromHash() {
+        route.value = normalizeRoute(window.location.hash)
+      }
+
       async function doLogin() {
+        if (busyLogin.value) return
+        busyLogin.value = true
         loginStatus.value = '登录中...'
         try {
           const resp = await api('/admin/login', {
@@ -306,12 +636,13 @@
           setToken(resp.token)
           authed.value = true
           loginStatus.value = '登录成功，role=' + resp.role
-          await reloadCategories()
-          await reloadProducts()
-          await loadContact()
+          syncRouteFromHash()
+          await refreshAll()
         } catch (e) {
           authed.value = false
           loginStatus.value = '登录失败：' + e.message
+        } finally {
+          busyLogin.value = false
         }
       }
 
@@ -319,6 +650,7 @@
         setToken('')
         authed.value = false
         loginStatus.value = '已退出'
+        route.value = 'categories'
       }
 
       async function reloadCategories() {
@@ -338,6 +670,15 @@
         categoryForm.nameEn = c.nameEn
         categoryForm.sortOrder = c.sortOrder
         categoryForm.active = !!c.active
+      }
+
+      function resetCategoryForm() {
+        categoryForm.id = ''
+        categoryForm.code = ''
+        categoryForm.nameZh = ''
+        categoryForm.nameEn = ''
+        categoryForm.sortOrder = 0
+        categoryForm.active = true
       }
 
       async function saveCategory() {
@@ -407,6 +748,22 @@
         } catch (e) {
           productStatus.value = '失败：' + e.message
         }
+      }
+
+      function resetProductForm() {
+        productForm.id = ''
+        productForm.categoryId = ''
+        productForm.price = ''
+        productForm.discountPrice = ''
+        productForm.hot = false
+        productForm.active = true
+        productForm.zh.name = ''
+        productForm.zh.brief = ''
+        productForm.zh.description = ''
+        productForm.en.name = ''
+        productForm.en.brief = ''
+        productForm.en.description = ''
+        productForm.imagesText = ''
       }
 
       async function saveProduct() {
@@ -489,13 +846,74 @@
         }
       }
 
+      async function reloadWechatUsers() {
+        wechatUserStatus.value = '加载中...'
+        try {
+          const p = Math.max(1, Number(wechatUserQuery.page || 1))
+          const s = Math.min(100, Math.max(1, Number(wechatUserQuery.size || 20)))
+          wechatUsers.value = await api('/admin/wechat-users?page=' + p + '&size=' + s)
+          wechatUserStatus.value = 'OK'
+        } catch (e) {
+          wechatUserStatus.value = '失败：' + e.message
+        }
+      }
+
+      function resetAdminFavoriteQuery() {
+        adminFavoriteQuery.userId = ''
+        adminFavoriteQuery.productId = ''
+        adminFavoriteQuery.page = 1
+        adminFavoriteQuery.size = 20
+      }
+
+      async function reloadAdminFavorites() {
+        adminFavoriteStatus.value = '加载中...'
+        try {
+          const p = Math.max(1, Number(adminFavoriteQuery.page || 1))
+          const s = Math.min(100, Math.max(1, Number(adminFavoriteQuery.size || 20)))
+          const qs = new URLSearchParams()
+          qs.set('page', String(p))
+          qs.set('size', String(s))
+          if ((adminFavoriteQuery.userId || '').trim()) qs.set('userId', String(adminFavoriteQuery.userId).trim())
+          if ((adminFavoriteQuery.productId || '').trim()) qs.set('productId', String(adminFavoriteQuery.productId).trim())
+          adminFavorites.value = await api('/admin/favorites?' + qs.toString())
+          adminFavoriteStatus.value = 'OK'
+        } catch (e) {
+          adminFavoriteStatus.value = '失败：' + e.message
+        }
+      }
+
+      async function deleteAdminFavorite(id) {
+        adminFavoriteStatus.value = '删除中...'
+        try {
+          await api('/admin/favorites/' + id, { method: 'DELETE' })
+          adminFavoriteStatus.value = 'OK'
+          await reloadAdminFavorites()
+        } catch (e) {
+          adminFavoriteStatus.value = '失败：' + e.message
+        }
+      }
+
+      async function refreshAll() {
+        await reloadCategories()
+        await reloadProducts()
+        await loadContact()
+      }
+
+      onMounted(() => {
+        syncRouteFromHash()
+        window.addEventListener('hashchange', syncRouteFromHash)
+      })
+
       // 如果已有 token，允许用户直接刷新数据
       if (authed.value) {
-        reloadCategories().then(() => reloadProducts()).then(() => loadContact())
+        refreshAll()
       }
 
       return {
         authed,
+        route,
+        maskedToken,
+        busyLogin,
         loginForm,
         loginStatus,
         doLogin,
@@ -508,6 +926,7 @@
         fillCategory,
         saveCategory,
         deactivateCategory,
+        resetCategoryForm,
 
         contactForm,
         contactStatus,
@@ -520,7 +939,22 @@
         reloadProducts,
         fillProduct,
         saveProduct,
-        deactivateProduct
+        deactivateProduct,
+        resetProductForm,
+
+        wechatUsers,
+        wechatUserStatus,
+        wechatUserQuery,
+        reloadWechatUsers,
+
+        adminFavorites,
+        adminFavoriteStatus,
+        adminFavoriteQuery,
+        reloadAdminFavorites,
+        deleteAdminFavorite,
+        resetAdminFavoriteQuery,
+
+        refreshAll
       }
     }
   }).mount('#app')

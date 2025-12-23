@@ -3,14 +3,17 @@ const { CONFIG, getBaseUrl } = require('./config')
 const { request } = require('./request')
 
 function setUserToken(token) {
-  const app = getApp()
-  app.globalData.userToken = token || ''
+  const app = typeof getApp === 'function' ? getApp() : null
+  if (app && app.globalData) {
+    app.globalData.userToken = token || ''
+  }
   wx.setStorageSync(CONFIG.STORAGE_KEYS.USER_TOKEN, token || '')
 }
 
 function getUserToken() {
-  const app = getApp()
-  return app.globalData.userToken || wx.getStorageSync(CONFIG.STORAGE_KEYS.USER_TOKEN) || ''
+  const app = typeof getApp === 'function' ? getApp() : null
+  const inMemory = app && app.globalData ? app.globalData.userToken : ''
+  return inMemory || wx.getStorageSync(CONFIG.STORAGE_KEYS.USER_TOKEN) || ''
 }
 
 function loginWithWechatCode(code) {
@@ -49,10 +52,16 @@ function ensureLogin() {
             if (token) setUserToken(token)
             resolve(token || '')
           })
-          .catch(reject)
+          .catch((err) => {
+            // 开发期常见：appid/secret 不匹配或 code 无效，后端会返回 4xx + message
+            const msg = (err && err.message) || 'login failed'
+            wx.showToast({ title: msg, icon: 'none' })
+            resolve('')
+          })
       },
       fail(err) {
-        reject(err)
+        wx.showToast({ title: 'wx.login failed', icon: 'none' })
+        resolve('')
       },
     })
   })

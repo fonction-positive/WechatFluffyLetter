@@ -66,9 +66,11 @@ function request(options) {
           resolve(res.data)
           return
         }
-        const err = new Error(`Request failed: ${status}`)
+        const serverMsg = res && res.data && (res.data.message || res.data.msg || res.data.error)
+        const err = new Error(serverMsg ? String(serverMsg) : `Request failed: ${status}`)
         err.statusCode = status
         err.response = res
+        err.data = res && res.data
         reject(err)
       },
       fail(err) {

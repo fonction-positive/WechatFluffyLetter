@@ -1,71 +1,112 @@
-// index.js
-const defaultAvatarUrl = 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
 const { t, setLang, getLang } = require('../../utils/i18n')
+const { getProducts } = require('../../utils/api')
 const { ensureLogin } = require('../../utils/auth')
 
 Page({
   data: {
-    motto: t('pages.index.motto', 'Welcome'),
-    userInfo: {
-      avatarUrl: defaultAvatarUrl,
-      nickName: '',
-    },
-    hasUserInfo: false,
-    canIUseGetUserProfile: wx.canIUse('getUserProfile'),
-    canIUseNicknameComp: wx.canIUse('input.type.nickname'),
     lang: getLang(),
-    loginStatus: 'pending',
-  },
-  bindViewTap() {
-    wx.navigateTo({
-      url: '../logs/logs'
-    })
+    labels: {
+      brand: t('pages.index.title', 'FluffyLetter'),
+      about: t('pages.about.title', 'About'),
+      search: t('pages.index.search', 'Search'),
+      favorites: t('pages.favorites.title', 'Favorites'),
+      contact: t('pages.contact.title', 'Contact'),
+      recommend: t('pages.index.recommend', 'Recommended'),
+      empty: t('pages.index.empty', 'No products'),
+      loading: t('common.loading', 'Loading'),
+    },
+    banners: [],
+    recommended: [],
+    loading: false,
   },
   onLoad() {
-    // 示例：启动时确保登录，便于后续收藏功能使用
-    ensureLogin()
-      .then((token) => {
-        this.setData({ loginStatus: token ? 'ok' : 'no-token' })
-      })
-      .catch(() => {
-        this.setData({ loginStatus: 'failed' })
-      })
+    wx.setNavigationBarTitle({ title: t('pages.index.title', 'FluffyLetter') })
+    this.refreshLabels()
+    this.loadHome()
+  },
+  onShow() {
+    // 语言切换后返回首页，刷新文案/数据
+    wx.setNavigationBarTitle({ title: t('pages.index.title', 'FluffyLetter') })
+    this.refreshLabels()
+  },
+  onPullDownRefresh() {
+    this.loadHome().finally(() => wx.stopPullDownRefresh())
   },
   onToggleLang() {
     const next = this.data.lang === 'zh' ? 'en' : 'zh'
     setLang(next)
+    this.refreshLabels()
+    wx.setNavigationBarTitle({ title: t('pages.index.title', 'FluffyLetter') })
+    this.loadHome()
+  },
+  refreshLabels() {
     this.setData({
       lang: getLang(),
-      motto: t('pages.index.motto', 'Welcome'),
+      labels: {
+        brand: t('pages.index.title', 'FluffyLetter'),
+        about: t('pages.about.title', 'About'),
+        search: t('pages.index.search', 'Search'),
+        favorites: t('pages.favorites.title', 'Favorites'),
+        contact: t('pages.contact.title', 'Contact'),
+        recommend: t('pages.index.recommend', 'Recommended'),
+        empty: t('pages.index.empty', 'No products'),
+        loading: t('common.loading', 'Loading'),
+      },
     })
   },
-  onChooseAvatar(e) {
-    const { avatarUrl } = e.detail
-    const { nickName } = this.data.userInfo
-    this.setData({
-      "userInfo.avatarUrl": avatarUrl,
-      hasUserInfo: nickName && avatarUrl && avatarUrl !== defaultAvatarUrl,
-    })
+  onTapBrand() {
+    wx.navigateTo({ url: '/pages/about/about' })
   },
-  onInputChange(e) {
-    const nickName = e.detail.value
-    const { avatarUrl } = this.data.userInfo
-    this.setData({
-      "userInfo.nickName": nickName,
-      hasUserInfo: nickName && avatarUrl && avatarUrl !== defaultAvatarUrl,
-    })
+  onTapSearch() {
+    wx.navigateTo({ url: '/pages/category/category?focus=1' })
   },
-  getUserProfile(e) {
-    // 推荐使用wx.getUserProfile获取用户信息，开发者每次通过该接口获取用户个人信息均需用户确认，开发者妥善保管用户快速填写的头像昵称，避免重复弹窗
-    wx.getUserProfile({
-      desc: '展示用户信息', // 声明获取用户个人信息后的用途，后续会展示在弹窗中，请谨慎填写
-      success: (res) => {
-        console.log(res)
+  onTapFavorites() {
+    wx.navigateTo({ url: '/pages/favorites/favorites' })
+  },
+  onTapContact() {
+    wx.navigateTo({ url: '/pages/contact/contact' })
+  },
+  onTapProduct(e) {
+    const id = e.currentTarget.dataset.id
+    if (!id) return
+    wx.navigateTo({ url: `/pages/product-detail/product-detail?id=${id}` })
+  },
+  loadHome() {
+    this.setData({ loading: true })
+    return ensureLogin()
+      .catch(() => '')
+      .then(() => getProducts({ page: 1, size: 20 }))
+      .then((list) => {
+        const items = (list || []).map(normalizeProductListItem)
+        const banners = items
+          .map((x) => x.coverImage)
+          .filter(Boolean)
+          .slice(0, 5)
+
         this.setData({
-          userInfo: res.userInfo,
-          hasUserInfo: true
+          recommended: items.slice(0, 6),
+          banners,
         })
-      }
-    })
+      })
+      .catch(() => {
+        wx.showToast({ title: t('common.networkError', 'Network error'), icon: 'none' })
+      })
+      .finally(() => {
+        this.setData({ loading: false })
+      })
   },
 })
+
+function normalizeProductListItem(raw) {
+  const item = raw || {}
+  return {
+    id: item.id,
+    name: item.name || '',
+    brief: item.brief || '',
+    price: item.price,
+    discountPrice: item.discountPrice != null ? item.discountPrice : item.discount_price,
+    hot: !!(item.hot != null ? item.hot : item.is_hot),
+    coverImage: item.coverImage || item.cover_image || '',
+    favorited: !!(item.favorited != null ? item.favorited : item.is_favorited),
+  }
+}

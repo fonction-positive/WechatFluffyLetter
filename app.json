@@ -1,9 +1,11 @@
 {
   "pages": [
     "pages/index/index",
+    "pages/category/category",
     "pages/product-detail/product-detail",
     "pages/favorites/favorites",
     "pages/contact/contact",
+    "pages/about/about",
     "pages/logs/logs"
   ],
   "window": {

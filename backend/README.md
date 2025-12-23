@@ -170,6 +170,7 @@ CREATE DATABASE fluffyletter DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unico
 
 - `Dockerfile`
 - `docker-compose.yml`
+- `docker-compose.prod.yml`（更适合服务器：MySQL 不对外暴露、自动重启、健康检查）
 - `.env.example`
 
 ### 1) 准备 .env
@@ -194,6 +195,57 @@ CREATE DATABASE fluffyletter DEFAULT CHARACTER SET utf8mb4 COLLATE utf8mb4_unico
 
 - MySQL：`localhost:3306`
 - 后端：`http://localhost:8080`
+
+---
+
+## 三（生产部署）在服务器上部署（Docker Compose）
+
+下面以 Linux 服务器为例（已安装 Docker + Docker Compose v2）。
+
+### 1) 复制代码到服务器
+
+把整个 `backend/` 目录上传到服务器（或在服务器上 git clone）。
+
+建议目录：
+
+- `/opt/fluffyletter/backend`
+
+### 2) 准备 .env（生产必填）
+
+在服务器的 `backend/` 目录：
+
+- `cp .env.example .env`
+
+至少要改这些：
+
+- `MYSQL_ROOT_PASSWORD`：强密码
+- `FLUFFY_WECHAT_APPID` / `FLUFFY_WECHAT_SECRET`
+- `FLUFFY_JWT_SECRET`：至少 32 位强随机字符串
+
+可选：首次启动自动创建管理员（仅当 admin_user 表为空时生效）：
+
+- `ADMIN_BOOTSTRAP_USERNAME`
+- `ADMIN_BOOTSTRAP_PASSWORD`
+
+### 3) 启动（生产 compose 文件）
+
+在服务器 `backend/` 目录执行：
+
+- `docker compose -f docker-compose.prod.yml up -d --build`
+
+查看日志：
+
+- `docker compose -f docker-compose.prod.yml logs -f backend`
+
+### 4) 访问验证
+
+- 后端：`http://<服务器IP>:${BACKEND_PORT:-8080}`
+- 管理页面：`http://<服务器IP>:${BACKEND_PORT:-8080}/admin.html`
+
+### 5) 重要说明（小程序上线必看）
+
+- 真机/线上环境通常需要 HTTPS 域名，并在微信小程序后台配置“服务器域名”。
+- `docker-compose.prod.yml` 默认把后端端口对外暴露（`BACKEND_PORT`），如你要走 Nginx 反代/HTTPS，建议只在防火墙层面开放 80/443。
 
 ---
 

@@ -5,7 +5,9 @@
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/controller/AdminAuthController.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/controller/AdminCategoryController.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/controller/AdminContactController.java
+/Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/controller/AdminFavoriteController.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/controller/AdminProductController.java
+/Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/controller/AdminWechatUserController.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/controller/ApiCategoryController.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/controller/ApiContactController.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/controller/ApiProductController.java
@@ -15,6 +17,7 @@
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/dto/AdminCategoryDTO.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/dto/AdminCategoryUpsertRequest.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/dto/AdminContactUpsertRequest.java
+/Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/dto/AdminFavoriteListItemDTO.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/dto/AdminLoginRequest.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/dto/AdminLoginResponse.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/dto/AdminProductDetailDTO.java
@@ -24,6 +27,7 @@
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/dto/AdminProductImageRequest.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/dto/AdminProductListItemDTO.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/dto/AdminProductUpsertRequest.java
+/Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/dto/AdminWechatUserDTO.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/dto/ApiResponse.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/dto/CategoryDTO.java
 /Users/jinzhuoyuan/Eunice/WechatFluffyLetter/backend/src/main/java/com/fluffyletter/dto/ContactDTO.java

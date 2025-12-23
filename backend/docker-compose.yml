@@ -29,7 +29,7 @@ services:
       FLUFFY_WECHAT_SECRET: ${FLUFFY_WECHAT_SECRET:-}
       FLUFFY_JWT_SECRET: ${FLUFFY_JWT_SECRET:-change_me_to_a_long_random_secret_key_32_chars_min}
     ports:
-      - "8080:8080"
+      - "${BACKEND_PORT:-8080}:8080"
 
 volumes:
   mysql_data:

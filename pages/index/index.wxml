@@ -1,27 +1,52 @@
 <!--index.wxml-->
-<scroll-view class="scrollarea" scroll-y type="list">
-  <view class="container">
-    <view class="userinfo">
-      <block wx:if="{{canIUseNicknameComp && !hasUserInfo}}">
-        <button class="avatar-wrapper" open-type="chooseAvatar" bind:chooseavatar="onChooseAvatar">
-          <image class="avatar" src="{{userInfo.avatarUrl}}"></image>
-        </button>
-        <view class="nickname-wrapper">
-          <text class="nickname-label">昵称</text>
-          <input type="nickname" class="nickname-input" placeholder="请输入昵称" bind:change="onInputChange" />
-        </view>
-      </block>
-      <block wx:elif="{{!hasUserInfo}}">
-        <button wx:if="{{canIUseGetUserProfile}}" bindtap="getUserProfile"> 获取头像昵称 </button>
-        <view wx:else> 请使用2.10.4及以上版本基础库 </view>
-      </block>
-      <block wx:else>
-        <image bindtap="bindViewTap" class="userinfo-avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-        <text class="userinfo-nickname">{{userInfo.nickName}}</text>
-      </block>
+<view class="page">
+  <view class="nav">
+    <view class="brand" bindtap="onTapBrand">
+      <text class="brand-text">{{labels.brand}}</text>
     </view>
-    <view class="usermotto">
-      <text class="user-motto">{{motto}}</text>
+    <view class="nav-actions">
+      <button size="mini" bindtap="onTapSearch">{{labels.search}}</button>
+      <button size="mini" bindtap="onTapFavorites">{{labels.favorites}}</button>
+      <button size="mini" bindtap="onToggleLang">{{lang === 'zh' ? 'EN' : '中文'}}</button>
     </view>
   </view>
-</scroll-view>
+
+  <scroll-view class="content" scroll-y="true">
+    <swiper class="swiper" indicator-dots="true" autoplay="true" circular="true" interval="4000">
+      <block wx:for="{{banners}}" wx:key="*this">
+        <swiper-item>
+          <image class="banner" mode="aspectFill" src="{{item}}"></image>
+        </swiper-item>
+      </block>
+      <block wx:if="{{banners.length === 0}}">
+        <swiper-item>
+          <view class="banner-placeholder"></view>
+        </swiper-item>
+      </block>
+    </swiper>
+
+    <view class="section">
+      <text class="section-title">{{labels.recommend}}</text>
+      <block wx:if="{{recommended.length === 0 && !loading}}">
+        <view class="empty">{{labels.empty}}</view>
+      </block>
+      <block wx:for="{{recommended}}" wx:key="id">
+        <view class="card" data-id="{{item.id}}" bindtap="onTapProduct">
+          <image class="cover" mode="aspectFill" src="{{item.coverImage}}"></image>
+          <view class="content2">
+            <view class="name-row">
+              <text class="name">{{item.name}}</text>
+              <text wx:if="{{item.favorited}}" class="fav">★</text>
+            </view>
+            <text class="brief">{{item.brief}}</text>
+          </view>
+        </view>
+      </block>
+      <view wx:if="{{loading}}" class="loading">{{labels.loading}}</view>
+    </view>
+  </scroll-view>
+
+  <view class="fab" bindtap="onTapContact">
+    <text class="fab-text">{{labels.contact}}</text>
+  </view>
+</view>

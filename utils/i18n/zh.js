@@ -15,9 +15,15 @@ module.exports = {
       title: 'FluffyLetter',
       motto: '欢迎来到 FluffyLetter',
       all: '全部',
+      search: '搜索',
+      recommend: '推荐商品',
       empty: '暂无商品',
       loadMore: '加载更多',
       noMore: '没有更多了',
+    },
+    category: {
+      title: '分类',
+      searchPlaceholder: '搜索商品',
     },
     favorites: {
       title: '收藏',
@@ -28,6 +34,10 @@ module.exports = {
       wechatId: '微信号',
       copy: '复制',
       copied: '已复制',
+    },
+    about: {
+      title: '关于我们',
+      desc: 'FluffyLetter 是一个用于展示和挑选毛绒信件/商品的小程序。',
     },
     product: {
       favorited: '已收藏',

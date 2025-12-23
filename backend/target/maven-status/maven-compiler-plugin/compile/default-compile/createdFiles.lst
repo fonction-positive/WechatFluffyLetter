@@ -1,5 +1,6 @@
 com/fluffyletter/entity/WechatUser.class
 com/fluffyletter/service/WechatAuthService.class
+com/fluffyletter/dto/AdminWechatUserDTO.class
 com/fluffyletter/config/FluffyProperties$Admin.class
 com/fluffyletter/controller/GlobalExceptionHandler.class
 com/fluffyletter/dto/AdminLoginResponse.class
@@ -26,10 +27,12 @@ com/fluffyletter/bootstrap/AdminBootstrapRunner.class
 com/fluffyletter/repository/ContactInfoRepository.class
 com/fluffyletter/controller/ApiProductController.class
 com/fluffyletter/service/ContactService.class
+com/fluffyletter/service/WechatAuthService$1.class
 com/fluffyletter/service/ProductService.class
 com/fluffyletter/service/NotFoundException.class
 com/fluffyletter/service/UserContext.class
 com/fluffyletter/dto/AdminProductImageRequest.class
+com/fluffyletter/dto/AdminFavoriteListItemDTO.class
 com/fluffyletter/dto/AdminProductDetailDTO.class
 com/fluffyletter/controller/ApiContactController.class
 com/fluffyletter/service/AdminContext.class
@@ -51,6 +54,7 @@ com/fluffyletter/dto/ApiResponse.class
 com/fluffyletter/service/CategoryService.class
 com/fluffyletter/controller/AuthController.class
 com/fluffyletter/controller/AdminCategoryController.class
+com/fluffyletter/controller/AdminWechatUserController.class
 com/fluffyletter/repository/ProductImageRepository.class
 com/fluffyletter/controller/FavoriteController.class
 com/fluffyletter/repository/WechatUserRepository.class
@@ -60,6 +64,7 @@ com/fluffyletter/controller/ApiCategoryController.class
 com/fluffyletter/dto/AdminProductUpsertRequest.class
 com/fluffyletter/entity/Favorite.class
 com/fluffyletter/dto/AdminProductListItemDTO.class
+com/fluffyletter/controller/AdminFavoriteController.class
 com/fluffyletter/config/FluffyProperties.class
 com/fluffyletter/dto/AdminLoginRequest.class
 com/fluffyletter/entity/AdminUser.class
