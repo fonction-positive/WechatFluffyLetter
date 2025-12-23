@@ -1,9 +1,11 @@
 // index.js
 const defaultAvatarUrl = 'https://mmbiz.qpic.cn/mmbiz/icTdbqWNOwNRna42FI242Lcia07jQodd2FJGIYQfG0LAJGFxM4FbnQP6yfMxBgJ0F3YRqJCJ1aPAK2dQagdusBZg/0'
+const { t, setLang, getLang } = require('../../utils/i18n')
+const { ensureLogin } = require('../../utils/auth')
 
 Page({
   data: {
-    motto: 'Hello World',
+    motto: t('pages.index.motto', 'Welcome'),
     userInfo: {
       avatarUrl: defaultAvatarUrl,
       nickName: '',
@@ -11,10 +13,30 @@ Page({
     hasUserInfo: false,
     canIUseGetUserProfile: wx.canIUse('getUserProfile'),
     canIUseNicknameComp: wx.canIUse('input.type.nickname'),
+    lang: getLang(),
+    loginStatus: 'pending',
   },
   bindViewTap() {
     wx.navigateTo({
       url: '../logs/logs'
+    })
+  },
+  onLoad() {
+    // 示例：启动时确保登录，便于后续收藏功能使用
+    ensureLogin()
+      .then((token) => {
+        this.setData({ loginStatus: token ? 'ok' : 'no-token' })
+      })
+      .catch(() => {
+        this.setData({ loginStatus: 'failed' })
+      })
+  },
+  onToggleLang() {
+    const next = this.data.lang === 'zh' ? 'en' : 'zh'
+    setLang(next)
+    this.setData({
+      lang: getLang(),
+      motto: t('pages.index.motto', 'Welcome'),
     })
   },
   onChooseAvatar(e) {

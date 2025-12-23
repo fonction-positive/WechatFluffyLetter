@@ -1,0 +1,37 @@
+module.exports = {
+  common: {
+    loading: '加载中',
+    networkError: '网络异常，请稍后重试',
+  },
+  nav: {
+    favorites: '收藏',
+    search: '搜索',
+    language: '语言',
+    contact: '联系我们',
+    home: '首页',
+  },
+  pages: {
+    index: {
+      title: 'FluffyLetter',
+      motto: '欢迎来到 FluffyLetter',
+      all: '全部',
+      empty: '暂无商品',
+      loadMore: '加载更多',
+      noMore: '没有更多了',
+    },
+    favorites: {
+      title: '收藏',
+      empty: '暂无收藏',
+    },
+    contact: {
+      title: '联系我们',
+      wechatId: '微信号',
+      copy: '复制',
+      copied: '已复制',
+    },
+    product: {
+      favorited: '已收藏',
+      unfavorited: '收藏',
+    }
+  },
+}

@@ -1,0 +1,530 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>FluffyLetter 管理后台</title>
+  <style>
+    body { font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; margin: 24px; }
+    .row { display: flex; gap: 16px; flex-wrap: wrap; }
+    .card { border: 1px solid #ddd; border-radius: 8px; padding: 16px; min-width: 320px; flex: 1; }
+    label { display: block; margin: 8px 0 4px; font-size: 12px; color: #333; }
+    input, textarea, select { width: 100%; padding: 8px; box-sizing: border-box; }
+    textarea { min-height: 88px; }
+    button { padding: 8px 12px; cursor: pointer; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { border-bottom: 1px solid #eee; padding: 6px 4px; text-align: left; font-size: 12px; }
+    .muted { color: #666; font-size: 12px; }
+    .hidden { display: none; }
+    .actions { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
+    .danger { color: #b00020; }
+  </style>
+</head>
+<body>
+
+<div id="app">
+  <h2>FluffyLetter 管理后台</h2>
+  <div class="muted">Vue 版（单页）：登录后可管理分类 / 商品 / 联系方式</div>
+
+  <div class="card">
+    <h3>1) 登录</h3>
+    <div class="row">
+      <div style="min-width:260px; flex:1;">
+        <label>用户名</label>
+        <input v-model.trim="loginForm.username" placeholder="admin" />
+      </div>
+      <div style="min-width:260px; flex:1;">
+        <label>密码</label>
+        <input v-model="loginForm.password" type="password" placeholder="例如：admin123" />
+      </div>
+    </div>
+    <div class="actions" style="margin-top:12px;">
+      <button v-if="!authed" @click="doLogin">登录</button>
+      <button v-else @click="doLogout">退出</button>
+      <span class="muted">{{ loginStatus }}</span>
+    </div>
+  </div>
+
+  <div v-if="authed">
+    <div class="row" style="margin-top:16px;">
+
+      <div class="card">
+        <h3>2) 分类</h3>
+        <div class="actions">
+          <button @click="reloadCategories">刷新</button>
+          <span class="muted">{{ catStatus }}</span>
+        </div>
+        <div style="margin-top:8px; overflow:auto;">
+          <table>
+            <thead>
+            <tr>
+              <th>ID</th><th>code</th><th>中文名</th><th>英文名</th><th>排序</th><th>启用</th><th>操作</th>
+            </tr>
+            </thead>
+            <tbody>
+            <tr v-for="c in categories" :key="c.id">
+              <td>{{ c.id }}</td>
+              <td>{{ c.code }}</td>
+              <td>{{ c.nameZh }}</td>
+              <td>{{ c.nameEn }}</td>
+              <td>{{ c.sortOrder }}</td>
+              <td>{{ c.active }}</td>
+              <td class="actions">
+                <button @click="fillCategory(c)">填充</button>
+                <button class="danger" @click="deactivateCategory(c.id)">停用</button>
+              </td>
+            </tr>
+            </tbody>
+          </table>
+        </div>
+
+        <h4 style="margin-top:12px;">新增/更新（填写 ID 则更新）</h4>
+        <div class="row">
+          <div style="min-width:120px; flex:0 0 120px;">
+            <label>ID</label>
+            <input v-model.trim="categoryForm.id" placeholder="(空=新增)" />
+          </div>
+          <div style="min-width:160px; flex:1;">
+            <label>code</label>
+            <input v-model.trim="categoryForm.code" />
+          </div>
+          <div style="min-width:200px; flex:1;">
+            <label>nameZh</label>
+            <input v-model.trim="categoryForm.nameZh" />
+          </div>
+          <div style="min-width:200px; flex:1;">
+            <label>nameEn</label>
+            <input v-model.trim="categoryForm.nameEn" />
+          </div>
+          <div style="min-width:120px; flex:0 0 120px;">
+            <label>sortOrder</label>
+            <input v-model.number="categoryForm.sortOrder" type="number" />
+          </div>
+          <div style="min-width:120px; flex:0 0 120px;">
+            <label>active</label>
+            <select v-model="categoryForm.active">
+              <option :value="true">true</option>
+              <option :value="false">false</option>
+            </select>
+          </div>
+        </div>
+        <div class="actions" style="margin-top:8px;">
+          <button @click="saveCategory">保存</button>
+        </div>
+      </div>
+
+      <div class="card">
+        <h3>3) 联系方式</h3>
+        <div class="actions">
+          <button @click="loadContact">加载</button>
+          <button @click="saveContact">保存</button>
+          <span class="muted">{{ contactStatus }}</span>
+        </div>
+        <label>wechatId</label>
+        <input v-model="contactForm.wechatId" />
+        <label>qrcodeUrl</label>
+        <input v-model="contactForm.qrcodeUrl" placeholder="https://..." />
+      </div>
+
+    </div>
+
+    <div class="card" style="margin-top:16px;">
+      <h3>4) 商品</h3>
+      <div class="actions">
+        <button @click="reloadProducts">刷新</button>
+        <span class="muted">{{ productStatus }}</span>
+        <span class="muted">（默认只展示第一页）</span>
+      </div>
+      <div style="margin-top:8px; overflow:auto;">
+        <table>
+          <thead>
+          <tr>
+            <th>ID</th><th>分类</th><th>价格</th><th>折扣价</th><th>热销</th><th>启用</th><th>中文名</th><th>英文名</th><th>操作</th>
+          </tr>
+          </thead>
+          <tbody>
+          <tr v-for="p in products" :key="p.id">
+            <td>{{ p.id }}</td>
+            <td>{{ p.categoryId }}</td>
+            <td>{{ p.price }}</td>
+            <td>{{ p.discountPrice ?? '' }}</td>
+            <td>{{ p.hot }}</td>
+            <td>{{ p.active }}</td>
+            <td>{{ p.nameZh }}</td>
+            <td>{{ p.nameEn }}</td>
+            <td class="actions">
+              <button @click="fillProduct(p.id)">填充</button>
+              <button class="danger" @click="deactivateProduct(p.id)">停用</button>
+            </td>
+          </tr>
+          </tbody>
+        </table>
+      </div>
+
+      <h4 style="margin-top:12px;">新增/更新（填写 ID 则更新）</h4>
+      <div class="row">
+        <div style="min-width:120px; flex:0 0 120px;">
+          <label>ID</label>
+          <input v-model.trim="productForm.id" placeholder="(空=新增)" />
+        </div>
+        <div style="min-width:220px; flex:0 0 220px;">
+          <label>category</label>
+          <select v-model="productForm.categoryId">
+            <option value="">请选择分类</option>
+            <option v-for="c in categories" :key="c.id" :value="String(c.id)">
+              {{ c.id }} - {{ c.nameZh }} ({{ c.code }})
+            </option>
+          </select>
+        </div>
+        <div style="min-width:140px; flex:0 0 140px;">
+          <label>price</label>
+          <input v-model="productForm.price" placeholder="9.99" />
+        </div>
+        <div style="min-width:140px; flex:0 0 140px;">
+          <label>discountPrice</label>
+          <input v-model="productForm.discountPrice" placeholder="(可空)" />
+        </div>
+        <div style="min-width:120px; flex:0 0 120px;">
+          <label>hot</label>
+          <select v-model="productForm.hot">
+            <option :value="true">true</option>
+            <option :value="false">false</option>
+          </select>
+        </div>
+        <div style="min-width:120px; flex:0 0 120px;">
+          <label>active</label>
+          <select v-model="productForm.active">
+            <option :value="true">true</option>
+            <option :value="false">false</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="row">
+        <div class="card" style="flex:1; min-width:320px;">
+          <h4>中文(zh)</h4>
+          <label>name</label><input v-model="productForm.zh.name" />
+          <label>brief</label><input v-model="productForm.zh.brief" />
+          <label>description</label><textarea v-model="productForm.zh.description"></textarea>
+        </div>
+        <div class="card" style="flex:1; min-width:320px;">
+          <h4>英文(en)</h4>
+          <label>name</label><input v-model="productForm.en.name" />
+          <label>brief</label><input v-model="productForm.en.brief" />
+          <label>description</label><textarea v-model="productForm.en.description"></textarea>
+        </div>
+      </div>
+
+      <div style="margin-top:8px;">
+        <label>images（每行一个 URL；第一行默认 cover）</label>
+        <textarea v-model="productForm.imagesText" placeholder="https://...\nhttps://..."></textarea>
+      </div>
+
+      <div class="actions" style="margin-top:8px;">
+        <button @click="saveProduct">保存</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://unpkg.com/vue@3/dist/vue.global.prod.js"></script>
+<script>
+  const { createApp, reactive, ref } = Vue
+  const TOKEN_KEY = 'fluffy_admin_token'
+
+  function getToken() {
+    return localStorage.getItem(TOKEN_KEY) || ''
+  }
+
+  function setToken(t) {
+    if (t) localStorage.setItem(TOKEN_KEY, t)
+    else localStorage.removeItem(TOKEN_KEY)
+  }
+
+  async function api(path, opts = {}) {
+    const headers = Object.assign({ 'Content-Type': 'application/json' }, opts.headers || {})
+    const token = getToken()
+    if (token) headers['Authorization'] = 'Bearer ' + token
+
+    const res = await fetch(path, Object.assign({}, opts, { headers }))
+    if (res.status === 204) return null
+
+    const text = await res.text()
+    let data = null
+    try { data = text ? JSON.parse(text) : null } catch { data = text }
+
+    if (!res.ok) {
+      const msg = (data && data.message) ? data.message : ('HTTP ' + res.status)
+      throw new Error(msg)
+    }
+    return data
+  }
+
+  createApp({
+    setup() {
+      const authed = ref(!!getToken())
+      const loginStatus = ref(authed.value ? '已检测到 token（可能过期），可直接刷新数据验证' : '')
+
+      const loginForm = reactive({ username: 'admin', password: '' })
+
+      const categories = ref([])
+      const catStatus = ref('')
+      const categoryForm = reactive({
+        id: '',
+        code: '',
+        nameZh: '',
+        nameEn: '',
+        sortOrder: 0,
+        active: true
+      })
+
+      const contactStatus = ref('')
+      const contactForm = reactive({ wechatId: '', qrcodeUrl: '' })
+
+      const products = ref([])
+      const productStatus = ref('')
+      const productForm = reactive({
+        id: '',
+        categoryId: '',
+        price: '',
+        discountPrice: '',
+        hot: false,
+        active: true,
+        zh: { name: '', brief: '', description: '' },
+        en: { name: '', brief: '', description: '' },
+        imagesText: ''
+      })
+
+      async function doLogin() {
+        loginStatus.value = '登录中...'
+        try {
+          const resp = await api('/admin/login', {
+            method: 'POST',
+            headers: {},
+            body: JSON.stringify({ username: loginForm.username, password: loginForm.password })
+          })
+          setToken(resp.token)
+          authed.value = true
+          loginStatus.value = '登录成功，role=' + resp.role
+          await reloadCategories()
+          await reloadProducts()
+          await loadContact()
+        } catch (e) {
+          authed.value = false
+          loginStatus.value = '登录失败：' + e.message
+        }
+      }
+
+      function doLogout() {
+        setToken('')
+        authed.value = false
+        loginStatus.value = '已退出'
+      }
+
+      async function reloadCategories() {
+        catStatus.value = '加载中...'
+        try {
+          categories.value = await api('/admin/categories')
+          catStatus.value = 'OK'
+        } catch (e) {
+          catStatus.value = '失败：' + e.message
+        }
+      }
+
+      function fillCategory(c) {
+        categoryForm.id = String(c.id)
+        categoryForm.code = c.code
+        categoryForm.nameZh = c.nameZh
+        categoryForm.nameEn = c.nameEn
+        categoryForm.sortOrder = c.sortOrder
+        categoryForm.active = !!c.active
+      }
+
+      async function saveCategory() {
+        catStatus.value = '保存中...'
+        const payload = {
+          code: (categoryForm.code || '').trim(),
+          nameZh: (categoryForm.nameZh || '').trim(),
+          nameEn: (categoryForm.nameEn || '').trim(),
+          sortOrder: Number(categoryForm.sortOrder || 0),
+          active: !!categoryForm.active
+        }
+        try {
+          if (categoryForm.id) {
+            await api('/admin/categories/' + categoryForm.id, { method: 'PUT', body: JSON.stringify(payload) })
+          } else {
+            await api('/admin/categories', { method: 'POST', body: JSON.stringify(payload) })
+          }
+          catStatus.value = 'OK'
+          await reloadCategories()
+        } catch (e) {
+          catStatus.value = '失败：' + e.message
+        }
+      }
+
+      async function deactivateCategory(id) {
+        catStatus.value = '停用中...'
+        try {
+          await api('/admin/categories/' + id, { method: 'DELETE' })
+          catStatus.value = 'OK'
+          await reloadCategories()
+        } catch (e) {
+          catStatus.value = '失败：' + e.message
+        }
+      }
+
+      async function reloadProducts() {
+        productStatus.value = '加载中...'
+        try {
+          products.value = await api('/admin/products?page=1&size=10')
+          productStatus.value = 'OK'
+        } catch (e) {
+          productStatus.value = '失败：' + e.message
+        }
+      }
+
+      async function fillProduct(id) {
+        productStatus.value = '读取中...'
+        try {
+          const p = await api('/admin/products/' + id)
+          productForm.id = String(p.id)
+          productForm.categoryId = String(p.categoryId ?? '')
+          productForm.price = String(p.price ?? '')
+          productForm.discountPrice = p.discountPrice == null ? '' : String(p.discountPrice)
+          productForm.hot = !!p.hot
+          productForm.active = !!p.active
+
+          productForm.zh.name = p.zh?.name ?? ''
+          productForm.zh.brief = p.zh?.brief ?? ''
+          productForm.zh.description = p.zh?.description ?? ''
+
+          productForm.en.name = p.en?.name ?? ''
+          productForm.en.brief = p.en?.brief ?? ''
+          productForm.en.description = p.en?.description ?? ''
+
+          productForm.imagesText = (p.images || []).map(x => x.imageUrl).join('\n')
+          productStatus.value = 'OK'
+        } catch (e) {
+          productStatus.value = '失败：' + e.message
+        }
+      }
+
+      async function saveProduct() {
+        productStatus.value = '保存中...'
+        if (!productForm.categoryId) {
+          productStatus.value = '失败：请先选择分类（或先创建分类）'
+          return
+        }
+
+        const urls = (productForm.imagesText || '').trim()
+          ? (productForm.imagesText || '').split(/\r?\n/).map(s => s.trim()).filter(Boolean)
+          : []
+        const images = urls.map((u, idx) => ({ imageUrl: u, sortOrder: idx, cover: idx === 0 }))
+
+        const payload = {
+          categoryId: Number(productForm.categoryId),
+          price: productForm.price,
+          discountPrice: (String(productForm.discountPrice || '').trim() || null),
+          hot: !!productForm.hot,
+          active: !!productForm.active,
+          zh: {
+            name: productForm.zh.name,
+            brief: productForm.zh.brief,
+            description: productForm.zh.description
+          },
+          en: {
+            name: productForm.en.name,
+            brief: productForm.en.brief,
+            description: productForm.en.description
+          },
+          images
+        }
+
+        try {
+          if (productForm.id) {
+            await api('/admin/products/' + productForm.id, { method: 'PUT', body: JSON.stringify(payload) })
+          } else {
+            await api('/admin/products', { method: 'POST', body: JSON.stringify(payload) })
+          }
+          productStatus.value = 'OK'
+          await reloadProducts()
+        } catch (e) {
+          productStatus.value = '失败：' + e.message
+        }
+      }
+
+      async function deactivateProduct(id) {
+        productStatus.value = '停用中...'
+        try {
+          await api('/admin/products/' + id, { method: 'DELETE' })
+          productStatus.value = 'OK'
+          await reloadProducts()
+        } catch (e) {
+          productStatus.value = '失败：' + e.message
+        }
+      }
+
+      async function loadContact() {
+        contactStatus.value = '加载中...'
+        try {
+          const c = await api('/admin/contact')
+          contactForm.wechatId = c.wechatId ?? ''
+          contactForm.qrcodeUrl = c.qrcodeUrl ?? ''
+          contactStatus.value = 'OK'
+        } catch (e) {
+          contactStatus.value = '失败：' + e.message
+        }
+      }
+
+      async function saveContact() {
+        contactStatus.value = '保存中...'
+        try {
+          await api('/admin/contact', {
+            method: 'PUT',
+            body: JSON.stringify({ wechatId: contactForm.wechatId, qrcodeUrl: contactForm.qrcodeUrl })
+          })
+          contactStatus.value = 'OK'
+        } catch (e) {
+          contactStatus.value = '失败：' + e.message
+        }
+      }
+
+      // 如果已有 token，允许用户直接刷新数据
+      if (authed.value) {
+        reloadCategories().then(() => reloadProducts()).then(() => loadContact())
+      }
+
+      return {
+        authed,
+        loginForm,
+        loginStatus,
+        doLogin,
+        doLogout,
+
+        categories,
+        catStatus,
+        categoryForm,
+        reloadCategories,
+        fillCategory,
+        saveCategory,
+        deactivateCategory,
+
+        contactForm,
+        contactStatus,
+        loadContact,
+        saveContact,
+
+        products,
+        productForm,
+        productStatus,
+        reloadProducts,
+        fillProduct,
+        saveProduct,
+        deactivateProduct
+      }
+    }
+  }).mount('#app')
+</script>
+
+</body>
+</html>
