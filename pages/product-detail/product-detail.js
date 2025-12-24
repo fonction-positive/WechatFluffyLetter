@@ -1,6 +1,7 @@
 const { t, getLang } = require('../../utils/i18n')
 const { getProductDetail, addFavorite, removeFavorite } = require('../../utils/api')
 const { ensureLogin } = require('../../utils/auth')
+const { buildUrl } = require('../../utils/request')
 
 const FAV_CHANGED_KEY = 'favChanged'
 
@@ -107,6 +108,11 @@ Page({
 
 function normalizeProductDetail(raw) {
   const item = raw || {}
+  const cover = item.coverImage || item.cover_image || ''
+  const imagesRaw = item.images || item.imageUrls || item.image_urls || []
+  const images = Array.isArray(imagesRaw)
+    ? imagesRaw.map((x) => (x ? buildUrl(x) : '')).filter(Boolean)
+    : []
   return {
     id: item.id,
     name: item.name || '',
@@ -114,8 +120,8 @@ function normalizeProductDetail(raw) {
     description: item.description || item.desc || '',
     price: item.price,
     discountPrice: item.discountPrice != null ? item.discountPrice : item.discount_price,
-    images: item.images || item.imageUrls || item.image_urls || [],
-    coverImage: item.coverImage || item.cover_image || '',
+    images,
+    coverImage: cover ? buildUrl(cover) : '',
     favorited: !!(item.favorited != null ? item.favorited : item.is_favorited),
   }
 }

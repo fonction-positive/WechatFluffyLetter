@@ -1,5 +1,6 @@
 const { t, getLang } = require('../../utils/i18n')
 const { getContact } = require('../../utils/api')
+const { buildUrl } = require('../../utils/request')
 
 Page({
   data: {
@@ -52,10 +53,11 @@ Page({
     return getContact()
       .then((raw) => {
         const data = raw || {}
+        const qrcode = data.qrcodeUrl || data.qrcode_url || ''
         this.setData({
           contact: {
             wechatId: data.wechatId || data.wechat_id || '',
-            qrcodeUrl: data.qrcodeUrl || data.qrcode_url || '',
+            qrcodeUrl: qrcode ? buildUrl(qrcode) : '',
           },
         })
       })

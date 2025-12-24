@@ -84,5 +84,6 @@ function request(options) {
 }
 
 module.exports = {
+  buildUrl,
   request,
 }

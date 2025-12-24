@@ -1,6 +1,7 @@
 const { t, setLang, getLang } = require('../../utils/i18n')
 const { getProducts, addFavorite, removeFavorite } = require('../../utils/api')
 const { ensureLogin } = require('../../utils/auth')
+const { buildUrl } = require('../../utils/request')
 
 const FAV_CHANGED_KEY = 'favChanged'
 
@@ -170,6 +171,7 @@ Page({
 
 function normalizeProductListItem(raw) {
   const item = raw || {}
+  const cover = item.coverImage || item.cover_image || ''
   return {
     id: item.id,
     name: item.name || '',
@@ -177,7 +179,7 @@ function normalizeProductListItem(raw) {
     price: item.price,
     discountPrice: item.discountPrice != null ? item.discountPrice : item.discount_price,
     hot: !!(item.hot != null ? item.hot : item.is_hot),
-    coverImage: item.coverImage || item.cover_image || '',
+    coverImage: cover ? buildUrl(cover) : '',
     favorited: !!(item.favorited != null ? item.favorited : item.is_favorited),
   }
 }
