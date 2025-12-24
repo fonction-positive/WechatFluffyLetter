@@ -135,13 +135,35 @@ public class AdminProductService {
     @Transactional
     public AdminProductDetailDTO update(Long id, AdminProductUpsertRequest request) {
         Product p = productRepository.findById(id).orElseThrow(() -> new NotFoundException("product not found"));
+
+        // Capture existing URLs first, so we can delete removed files after persisting new images.
+        List<String> existingUrls = productImageRepository.findByProductIdOrderByCoverDescSortOrderAscIdAsc(id)
+            .stream()
+            .map(ProductImage::getImageUrl)
+            .filter(StringUtils::hasText)
+            .map(String::trim)
+            .toList();
+
         apply(p, request);
         productRepository.save(p);
 
         upsertI18n(id, "zh", request.getZh());
         upsertI18n(id, "en", request.getEn());
         migrateTmpImages(id, request.getImages());
+
+        Set<String> newUrls = new HashSet<>();
+        if (request.getImages() != null) {
+            for (AdminProductImageRequest img : request.getImages()) {
+                if (img != null && StringUtils.hasText(img.getImageUrl())) {
+                    newUrls.add(img.getImageUrl().trim());
+                }
+            }
+        }
+
         replaceImages(id, request.getImages());
+
+        // Best-effort cleanup: delete files that were removed from this product.
+        deleteRemovedProductImageFiles(id, existingUrls, newUrls);
 
         return detail(id);
     }
@@ -186,6 +208,35 @@ public class AdminProductService {
             }
 
             img.setImageUrl(UPLOAD_PREFIX + targetRel);
+        }
+    }
+
+    private void deleteRemovedProductImageFiles(Long productId, List<String> existingUrls, Set<String> newUrls) {
+        if (existingUrls == null || existingUrls.isEmpty()) return;
+
+        Path root = Path.of(fluffyProperties.getUpload().getDir()).toAbsolutePath().normalize();
+
+        for (String oldUrl : existingUrls) {
+            if (!StringUtils.hasText(oldUrl)) continue;
+            String trimmed = oldUrl.trim();
+            if (newUrls != null && newUrls.contains(trimmed)) continue;
+
+            String urlPath = extractUrlPath(trimmed);
+            if (!StringUtils.hasText(urlPath)) continue;
+
+            // Only delete files under /uploads/products/{productId}/... (avoid deleting tmp or other products)
+            String ownedPrefix = "/uploads/products/" + productId + "/";
+            if (!urlPath.startsWith(ownedPrefix)) continue;
+
+            String rel = urlPath.substring(UPLOAD_PREFIX.length()); // products/{id}/...
+            Path file = root.resolve(rel).normalize();
+            if (!file.startsWith(root)) continue;
+
+            try {
+                Files.deleteIfExists(file);
+            } catch (Exception ignored) {
+                // Best-effort: ignore deletion failures.
+            }
         }
     }
 
