@@ -43,10 +43,11 @@
         <tr>
           <td>${preview}</td>
           <td>
-            <input data-img-file="${idx}" type="file" accept="image/*" />
+            <button type="button" data-img-pick="${idx}">选择图片</button>
+            <input data-img-file="${idx}" type="file" accept="image/*" style="display:none;" />
             <div class="muted" style="margin-top:4px;">选择后自动上传</div>
           </td>
-          <td><input data-img-url="${idx}" value="${escapeHtml(img.imageUrl || '')}" placeholder="上传后自动填充" readonly /></td>
+          <td><input data-img-url="${idx}" value="${escapeHtml(img.imageUrl || '')}" placeholder="可粘贴 URL，或上传自动填充" /></td>
           <td><input data-img-sort="${idx}" type="number" value="${img.sortOrder ?? 0}" /></td>
           <td>
             <select data-img-cover="${idx}">
@@ -57,7 +58,7 @@
           <td><button class="danger" data-img-del="${idx}">删除</button></td>
         </tr>
       `;
-    }).join('') || '<tr><td colspan="5" class="muted">暂无图片</td></tr>';
+    }).join('') || '<tr><td colspan="6" class="muted">暂无图片</td></tr>';
   }
 
   async function uploadImage(idx, file) {
@@ -179,6 +180,15 @@
       images.splice(idx, 1);
       renderImages();
     }
+
+    const pick = t.getAttribute('data-img-pick');
+    if (pick != null) {
+      const idx = Number(pick);
+      const input = imgRowsEl.querySelector(`input[data-img-file="${idx}"]`);
+      if (input && input instanceof HTMLInputElement) {
+        input.click();
+      }
+    }
   });
   imgRowsEl.addEventListener('input', (ev) => {
     const t = ev.target;
@@ -186,19 +196,18 @@
     const urlIdx = t.getAttribute('data-img-url');
     const sortIdx = t.getAttribute('data-img-sort');
     const coverIdx = t.getAttribute('data-img-cover');
-    // imageUrl 现在由上传接口生成，保持只读
+    if (urlIdx != null) images[Number(urlIdx)].imageUrl = t.value;
     if (sortIdx != null) images[Number(sortIdx)].sortOrder = Number(t.value || 0);
     if (coverIdx != null) images[Number(coverIdx)].cover = t.value === 'true';
   });
 
   imgRowsEl.addEventListener('change', (ev) => {
     const t = ev.target;
-    if (!(t instanceof HTMLElement)) return;
+    if (!(t instanceof HTMLInputElement)) return;
     const fileIdx = t.getAttribute('data-img-file');
     if (fileIdx != null) {
       const idx = Number(fileIdx);
-      const input = t;
-      const files = input.files;
+      const files = t.files;
       const file = files && files[0] ? files[0] : null;
       if (!file) return;
       uploadImage(idx, file)
