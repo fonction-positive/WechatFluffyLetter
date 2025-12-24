@@ -78,10 +78,13 @@
     }
 
     const resp = await fetch(path, { method, headers, body });
-    if (resp.status === 401 || resp.status === 403) {
+    if (resp.status === 401) {
       clearAuth();
       redirectToLogin();
       throw new Error('unauthorized');
+    }
+    if (resp.status === 403) {
+      throw new Error('forbidden');
     }
 
     const text = await resp.text();

@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <title>分类 - FluffyLetter</title>
+  <title>管理员 - FluffyLetter</title>
   <link rel="stylesheet" href="./assets/admin.css" />
 </head>
 <body>
@@ -11,7 +11,7 @@
     <div class="topbar">
       <div class="brand">
         <h2>FluffyLetter 管理后台</h2>
-        <div class="muted">分类管理</div>
+        <div class="muted">管理员账号管理（superadmin）</div>
       </div>
       <div class="actions">
         <span class="muted" data-login-status></span>
@@ -34,7 +34,7 @@
         </div>
       </div>
       <div class="content">
-        <h3 class="page-title">分类</h3>
+        <h3 class="page-title">管理员账号</h3>
         <div class="split">
           <div class="card">
             <h3>列表</h3>
@@ -46,11 +46,8 @@
                 <thead>
                   <tr>
                     <th>ID</th>
-                    <th>code</th>
-                    <th>中文名</th>
-                    <th>英文名</th>
-                    <th>排序</th>
-                    <th>启用</th>
+                    <th>username</th>
+                    <th>role</th>
                     <th>操作</th>
                   </tr>
                 </thead>
@@ -59,25 +56,23 @@
             </div>
           </div>
           <div class="card">
-            <h3 id="formTitle">新建/编辑</h3>
-            <div class="muted">删除会执行“软下线”（active=false）。</div>
+            <h3>创建 / 编辑</h3>
+            <div class="muted">仅 superadmin 可操作。你不能删除自己，也不能修改自己的 role。</div>
             <input type="hidden" id="editId" />
-            <label>code</label>
-            <input id="code" placeholder="例如: bouquet" />
-            <label>中文名</label>
-            <input id="nameZh" placeholder="例如: 花束" />
-            <label>英文名</label>
-            <input id="nameEn" placeholder="例如: Bouquet" />
-            <label>排序（sortOrder）</label>
-            <input id="sortOrder" type="number" value="0" />
-            <label>启用（active）</label>
-            <select id="active">
-              <option value="true">true</option>
-              <option value="false">false</option>
+            <label>username</label>
+            <input id="username" placeholder="例如: admin2" />
+            <label>role</label>
+            <select id="role">
+              <option value="admin">admin</option>
+              <option value="superadmin">superadmin</option>
             </select>
+            <label>password（创建/重置）</label>
+            <input id="password" type="password" placeholder="输入新密码" />
             <div class="actions" style="margin-top: 12px;">
-              <button id="saveBtn">保存</button>
-              <button id="resetBtn">清空</button>
+              <button id="createBtn">创建</button>
+              <button id="saveRoleBtn">保存角色</button>
+              <button id="resetPwdBtn">重置密码</button>
+              <button id="clearBtn">清空</button>
             </div>
             <div class="toast" data-toast style="display:none;"></div>
           </div>
@@ -87,6 +82,6 @@
   </div>
 
   <script src="./assets/admin-common.js"></script>
-  <script src="./assets/categories.js"></script>
+  <script src="./assets/admin-users.js"></script>
 </body>
 </html>
