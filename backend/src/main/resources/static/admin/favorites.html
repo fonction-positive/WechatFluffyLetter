@@ -1,0 +1,93 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>收藏 - FluffyLetter</title>
+  <link rel="stylesheet" href="./assets/admin.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <h2>FluffyLetter 管理后台</h2>
+        <div class="muted">收藏管理</div>
+      </div>
+      <div class="actions">
+        <span class="muted" data-login-status></span>
+        <button data-logout style="display:none;">退出</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="sidebar">
+        <div style="font-weight:600;">导航</div>
+        <div class="nav" data-nav style="margin-top:6px;">
+          <a href="index.html">首页</a>
+          <a href="categories.html">分类</a>
+          <a href="products.html">商品</a>
+          <a href="contact.html">联系信息</a>
+          <a href="wechat-users.html">微信用户</a>
+          <a href="favorites.html">收藏</a>
+          <a href="settings.html">设置</a>
+        </div>
+      </div>
+      <div class="content">
+        <h3 class="page-title">收藏</h3>
+        <div class="card" style="min-width:auto;">
+          <div class="row" style="margin-bottom: 10px;">
+            <div class="card" style="min-width: 260px; flex: 0 0 260px;">
+              <h3>筛选</h3>
+              <label>userId（可选）</label>
+              <input id="userId" placeholder="例如: 1" />
+              <label>productId（可选）</label>
+              <input id="productId" placeholder="例如: 12" />
+              <div class="actions" style="margin-top: 10px;">
+                <button id="applyBtn">查询</button>
+                <button id="clearBtn">清空</button>
+              </div>
+            </div>
+            <div class="card" style="min-width: 320px; flex: 1;">
+              <h3>分页</h3>
+              <div class="actions">
+                <button id="prevBtn">上一页</button>
+                <button id="nextBtn">下一页</button>
+                <span class="muted" id="pageInfo"></span>
+                <label style="margin:0;">size</label>
+                <select id="size">
+                  <option value="10">10</option>
+                  <option value="20" selected>20</option>
+                  <option value="50">50</option>
+                  <option value="100">100</option>
+                </select>
+              </div>
+            </div>
+          </div>
+
+          <div style="overflow:auto;">
+            <table>
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>userId</th>
+                  <th>openid</th>
+                  <th>productId</th>
+                  <th>商品名(zh)</th>
+                  <th>商品名(en)</th>
+                  <th>创建时间</th>
+                  <th>操作</th>
+                </tr>
+              </thead>
+              <tbody id="rows"></tbody>
+            </table>
+          </div>
+          <div class="toast" data-toast style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./assets/admin-common.js"></script>
+  <script src="./assets/favorites.js"></script>
+</body>
+</html>

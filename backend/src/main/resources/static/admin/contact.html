@@ -1,0 +1,66 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>联系信息 - FluffyLetter</title>
+  <link rel="stylesheet" href="./assets/admin.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <h2>FluffyLetter 管理后台</h2>
+        <div class="muted">联系信息</div>
+      </div>
+      <div class="actions">
+        <span class="muted" data-login-status></span>
+        <button data-logout style="display:none;">退出</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="sidebar">
+        <div style="font-weight:600;">导航</div>
+        <div class="nav" data-nav style="margin-top:6px;">
+          <a href="index.html">首页</a>
+          <a href="categories.html">分类</a>
+          <a href="products.html">商品</a>
+          <a href="contact.html">联系信息</a>
+          <a href="wechat-users.html">微信用户</a>
+          <a href="favorites.html">收藏</a>
+          <a href="settings.html">设置</a>
+        </div>
+      </div>
+      <div class="content">
+        <h3 class="page-title">联系信息</h3>
+        <div class="split">
+          <div class="card">
+            <h3>当前值</h3>
+            <div class="kv">
+              <div class="k">wechatId</div><div class="v" id="curWechatId">-</div>
+              <div class="k">qrcodeUrl</div><div class="v" id="curQrcodeUrl">-</div>
+            </div>
+            <div style="margin-top: 10px;" id="qrcodePreview"></div>
+          </div>
+          <div class="card">
+            <h3>更新</h3>
+            <label>wechatId</label>
+            <input id="wechatId" placeholder="例如: fluffyletter" />
+            <label>qrcodeUrl</label>
+            <input id="qrcodeUrl" placeholder="https://..." />
+            <div class="actions" style="margin-top: 12px;">
+              <button id="saveBtn">保存</button>
+              <button id="reloadBtn">刷新</button>
+            </div>
+            <div class="toast" data-toast style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./assets/admin-common.js"></script>
+  <script src="./assets/contact.js"></script>
+</body>
+</html>

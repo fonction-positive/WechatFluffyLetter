@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>后台首页 - FluffyLetter</title>
+  <link rel="stylesheet" href="./assets/admin.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <h2>FluffyLetter 管理后台</h2>
+        <div class="muted">多页面后台</div>
+      </div>
+      <div class="actions">
+        <span class="muted" data-login-status></span>
+        <button data-logout style="display:none;">退出</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="sidebar">
+        <div style="font-weight:600;">导航</div>
+        <div class="nav" data-nav style="margin-top:6px;">
+          <a href="index.html">首页</a>
+          <a href="categories.html">分类</a>
+          <a href="products.html">商品</a>
+          <a href="contact.html">联系信息</a>
+          <a href="wechat-users.html">微信用户</a>
+          <a href="favorites.html">收藏</a>
+          <a href="settings.html">设置</a>
+        </div>
+      </div>
+      <div class="content">
+        <h3 class="page-title">概览</h3>
+        <div class="row">
+          <div class="card">
+            <h3>快速入口</h3>
+            <div class="actions">
+              <a href="categories.html"><button>管理分类</button></a>
+              <a href="products.html"><button>管理商品</button></a>
+              <a href="contact.html"><button>联系信息</button></a>
+              <a href="wechat-users.html"><button>微信用户</button></a>
+              <a href="favorites.html"><button>收藏</button></a>
+            </div>
+          </div>
+          <div class="card">
+            <h3>说明</h3>
+            <div class="muted">所有管理接口均在同域名下，通过管理员 JWT 鉴权（Authorization: Bearer &lt;token&gt;）。</div>
+            <div class="muted" style="margin-top: 8px;">如果出现 401/403，会自动退出并跳转回登录页。</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./assets/admin-common.js"></script>
+  <script>
+    (function () {
+      if (!Admin.requireAuth()) return;
+      Admin.setActiveNav();
+      Admin.renderTopbar();
+    })();
+  </script>
+</body>
+</html>

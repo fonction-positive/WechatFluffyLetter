@@ -1,0 +1,43 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>登录 - FluffyLetter 管理后台</title>
+  <link rel="stylesheet" href="./assets/admin.css" />
+</head>
+<body>
+  <div class="app" style="max-width: 520px; margin: 0 auto;">
+    <div class="topbar">
+      <div class="brand">
+        <h2>FluffyLetter 管理后台</h2>
+        <div class="muted">多页面 · 先登录后进入后台</div>
+      </div>
+      <div class="actions">
+        <span class="muted" data-login-status></span>
+      </div>
+    </div>
+
+    <div class="layout" style="min-height: auto;">
+      <div class="content">
+        <h3 class="page-title">登录</h3>
+        <div class="card" style="min-width: auto;">
+          <div class="muted">请输入管理员账号密码</div>
+          <label>用户名</label>
+          <input id="username" placeholder="admin" autocomplete="username" />
+          <label>密码</label>
+          <input id="password" type="password" placeholder="请输入密码" autocomplete="current-password" />
+          <div class="actions" style="margin-top: 12px;">
+            <button id="loginBtn">登录</button>
+            <span class="muted" id="hint"></span>
+          </div>
+          <div class="toast" data-toast style="display:none;"></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./assets/admin-common.js"></script>
+  <script src="./assets/login.js"></script>
+</body>
+</html>

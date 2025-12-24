@@ -1,0 +1,91 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>分类 - FluffyLetter</title>
+  <link rel="stylesheet" href="./assets/admin.css" />
+</head>
+<body>
+  <div class="app">
+    <div class="topbar">
+      <div class="brand">
+        <h2>FluffyLetter 管理后台</h2>
+        <div class="muted">分类管理</div>
+      </div>
+      <div class="actions">
+        <span class="muted" data-login-status></span>
+        <button data-logout style="display:none;">退出</button>
+      </div>
+    </div>
+
+    <div class="layout">
+      <div class="sidebar">
+        <div style="font-weight:600;">导航</div>
+        <div class="nav" data-nav style="margin-top:6px;">
+          <a href="index.html">首页</a>
+          <a href="categories.html">分类</a>
+          <a href="products.html">商品</a>
+          <a href="contact.html">联系信息</a>
+          <a href="wechat-users.html">微信用户</a>
+          <a href="favorites.html">收藏</a>
+          <a href="settings.html">设置</a>
+        </div>
+      </div>
+      <div class="content">
+        <h3 class="page-title">分类</h3>
+        <div class="split">
+          <div class="card">
+            <h3>列表</h3>
+            <div class="actions" style="margin-bottom: 10px;">
+              <button id="reloadBtn">刷新</button>
+            </div>
+            <div style="overflow:auto;">
+              <table>
+                <thead>
+                  <tr>
+                    <th>ID</th>
+                    <th>code</th>
+                    <th>中文名</th>
+                    <th>英文名</th>
+                    <th>排序</th>
+                    <th>启用</th>
+                    <th>操作</th>
+                  </tr>
+                </thead>
+                <tbody id="rows"></tbody>
+              </table>
+            </div>
+          </div>
+          <div class="card">
+            <h3 id="formTitle">新建/编辑</h3>
+            <div class="muted">删除会执行“软下线”（active=false）。</div>
+            <input type="hidden" id="editId" />
+            <label>code</label>
+            <input id="code" placeholder="例如: bouquet" />
+            <label>中文名</label>
+            <input id="nameZh" placeholder="例如: 花束" />
+            <label>英文名</label>
+            <input id="nameEn" placeholder="例如: Bouquet" />
+            <label>排序（sortOrder）</label>
+            <input id="sortOrder" type="number" value="0" />
+            <label>启用（active）</label>
+            <select id="active">
+              <option value="true">true</option>
+              <option value="false">false</option>
+            </select>
+            <div class="actions" style="margin-top: 12px;">
+              <button id="saveBtn">保存</button>
+              <button id="resetBtn">清空</button>
+            </div>
+            <div class="toast" data-toast style="display:none;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="./assets/admin-common.js"></script>
+  <script src="./assets/categories.js"></script>
+</body>
+</html>
