@@ -10,6 +10,8 @@
   const saveBtn = document.getElementById('saveBtn');
   const addImgBtn = document.getElementById('addImgBtn');
   const imgRowsEl = document.getElementById('imgRows');
+  const pickUploadBtn = document.getElementById('pickUploadBtn');
+  const pickUploadInput = document.getElementById('pickUploadInput');
 
   const els = {
     categoryId: document.getElementById('categoryId'),
@@ -72,6 +74,18 @@
     const url = resp && (resp.url || resp.imageUrl);
     if (!url) throw new Error('upload response missing url');
     images[idx].imageUrl = url;
+    renderImages();
+  }
+
+  async function uploadAndAppend(file) {
+    Admin.toast('');
+    const fd = new FormData();
+    fd.append('file', file);
+    const qs = id ? `?productId=${encodeURIComponent(id)}` : '';
+    const resp = await Admin.api(`/admin/uploads/product-image${qs}`, { method: 'POST', body: fd });
+    const url = resp && (resp.url || resp.imageUrl);
+    if (!url) throw new Error('upload response missing url');
+    images.push({ imageUrl: url, sortOrder: 0, cover: images.length === 0 });
     renderImages();
   }
 
@@ -171,6 +185,22 @@
     images.push({ imageUrl: '', sortOrder: 0, cover: false });
     renderImages();
   });
+
+  if (pickUploadBtn && pickUploadInput) {
+    pickUploadBtn.addEventListener('click', () => {
+      pickUploadInput.click();
+    });
+    pickUploadInput.addEventListener('change', () => {
+      const file = pickUploadInput.files && pickUploadInput.files[0] ? pickUploadInput.files[0] : null;
+      if (!file) return;
+      uploadAndAppend(file)
+        .then(() => Admin.toast('上传成功'))
+        .catch((e) => Admin.toast(`上传失败：${e && e.message ? e.message : '未知错误'}`, 'danger'))
+        .finally(() => {
+          pickUploadInput.value = '';
+        });
+    });
+  }
   imgRowsEl.addEventListener('click', (ev) => {
     const t = ev.target;
     if (!(t instanceof HTMLElement)) return;

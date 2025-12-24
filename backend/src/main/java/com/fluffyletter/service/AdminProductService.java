@@ -1,5 +1,6 @@
 package com.fluffyletter.service;
 
+import com.fluffyletter.config.FluffyProperties;
 import com.fluffyletter.dto.*;
 import com.fluffyletter.entity.Product;
 import com.fluffyletter.entity.ProductI18n;
@@ -11,22 +12,35 @@ import jakarta.transaction.Transactional;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
+import org.springframework.util.StringUtils;
 
+import java.net.URI;
 import java.util.*;
+import java.nio.file.Files;
+import java.nio.file.NoSuchFileException;
+import java.nio.file.Path;
+import java.nio.file.StandardCopyOption;
 
 @Service
 public class AdminProductService {
 
+    private static final String UPLOAD_PREFIX = "/uploads/";
+    private static final String TMP_URL_PREFIX = "/uploads/products/tmp/";
+    private static final String TMP_REL_PREFIX = "products/tmp/";
+
     private final ProductRepository productRepository;
     private final ProductI18nRepository productI18nRepository;
     private final ProductImageRepository productImageRepository;
+    private final FluffyProperties fluffyProperties;
 
     public AdminProductService(ProductRepository productRepository,
                               ProductI18nRepository productI18nRepository,
-                              ProductImageRepository productImageRepository) {
+                              ProductImageRepository productImageRepository,
+                              FluffyProperties fluffyProperties) {
         this.productRepository = productRepository;
         this.productI18nRepository = productI18nRepository;
         this.productImageRepository = productImageRepository;
+        this.fluffyProperties = fluffyProperties;
     }
 
     public List<AdminProductListItemDTO> list(int page, int size) {
@@ -112,6 +126,7 @@ public class AdminProductService {
 
         upsertI18n(p.getId(), "zh", request.getZh());
         upsertI18n(p.getId(), "en", request.getEn());
+        migrateTmpImages(p.getId(), request.getImages());
         replaceImages(p.getId(), request.getImages());
 
         return detail(p.getId());
@@ -125,9 +140,61 @@ public class AdminProductService {
 
         upsertI18n(id, "zh", request.getZh());
         upsertI18n(id, "en", request.getEn());
+        migrateTmpImages(id, request.getImages());
         replaceImages(id, request.getImages());
 
         return detail(id);
+    }
+
+    private void migrateTmpImages(Long productId, List<AdminProductImageRequest> images) {
+        if (images == null || images.isEmpty()) return;
+
+        Path root = Path.of(fluffyProperties.getUpload().getDir()).toAbsolutePath().normalize();
+
+        for (AdminProductImageRequest img : images) {
+            if (img == null || !StringUtils.hasText(img.getImageUrl())) continue;
+
+            String urlPath = extractUrlPath(img.getImageUrl());
+            if (!StringUtils.hasText(urlPath)) continue;
+
+            if (!urlPath.startsWith(TMP_URL_PREFIX)) continue;
+
+            String rel = urlPath.substring(UPLOAD_PREFIX.length()); // products/tmp/...
+            if (!rel.startsWith(TMP_REL_PREFIX)) continue;
+
+            String tail = rel.substring(TMP_REL_PREFIX.length());
+            String targetRel = "products/" + productId + "/" + tail;
+
+            Path source = root.resolve(rel).normalize();
+            Path target = root.resolve(targetRel).normalize();
+            if (!source.startsWith(root) || !target.startsWith(root)) {
+                throw new IllegalArgumentException("invalid imageUrl path");
+            }
+
+            try {
+                Files.createDirectories(target.getParent());
+                Files.move(source, target, StandardCopyOption.REPLACE_EXISTING);
+            } catch (NoSuchFileException e) {
+                throw new IllegalArgumentException("临时图片文件不存在，请重新上传：" + urlPath);
+            } catch (Exception e) {
+                throw new RuntimeException("移动图片失败：" + urlPath, e);
+            }
+
+            img.setImageUrl(UPLOAD_PREFIX + targetRel);
+        }
+    }
+
+    private static String extractUrlPath(String rawUrl) {
+        if (!StringUtils.hasText(rawUrl)) return "";
+        String s = rawUrl.trim();
+        if (s.startsWith("/")) return s;
+        if (s.startsWith("uploads/")) return "/" + s;
+        try {
+            URI uri = new URI(s);
+            return uri.getPath() == null ? "" : uri.getPath();
+        } catch (Exception ignored) {
+            return "";
+        }
     }
 
     @Transactional

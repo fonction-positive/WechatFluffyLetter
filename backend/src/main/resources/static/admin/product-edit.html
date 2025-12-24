@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>编辑商品 - FluffyLetter</title>
-  <link rel="stylesheet" href="./assets/admin.css" />
+  <link rel="stylesheet" href="./assets/admin.css?v=20251224" />
 </head>
 <body>
   <div class="app">
@@ -38,6 +38,15 @@
         <div class="actions" style="margin-bottom: 10px;">
           <a href="products.html"><button>返回列表</button></a>
           <button id="saveBtn">保存</button>
+        </div>
+
+        <div class="card" style="min-width:auto; margin-bottom: 14px;">
+          <h3>上传图片</h3>
+          <div class="muted">从本地选择图片上传到服务器，上传成功后会自动添加到图片列表。</div>
+          <div class="actions" style="margin-top: 10px;">
+            <button type="button" id="pickUploadBtn">选择图片并上传</button>
+            <input id="pickUploadInput" type="file" accept="image/*" style="display:none;" />
+          </div>
         </div>
 
         <div class="split">
@@ -107,6 +116,6 @@
   </div>
 
   <script src="./assets/admin-common.js"></script>
-  <script src="./assets/product-edit.js"></script>
+  <script src="./assets/product-edit.js?v=20251224" defer></script>
 </body>
 </html>
