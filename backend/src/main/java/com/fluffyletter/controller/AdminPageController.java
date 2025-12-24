@@ -6,8 +6,13 @@ import org.springframework.web.bind.annotation.GetMapping;
 @Controller
 public class AdminPageController {
 
-    @GetMapping({"/admin", "/admin/"})
-    public String adminIndex() {
+    @GetMapping("/admin")
+    public String adminNoSlash() {
+        return "redirect:/admin/";
+    }
+
+    @GetMapping("/admin/")
+    public String adminWithSlash() {
         return "forward:/admin/index.html";
     }
 }
