@@ -1,5 +1,6 @@
 {
   "pages": [
+    "pages/profile-gate/profile-gate",
     "pages/index/index",
     "pages/category/category",
     "pages/product-detail/product-detail",

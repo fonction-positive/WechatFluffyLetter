@@ -38,28 +38,6 @@ function loginWithWechatCode(code, profile) {
   })
 }
 
-function getUserProfileSafe() {
-  return new Promise((resolve) => {
-    if (!wx.getUserProfile) {
-      resolve({})
-      return
-    }
-    wx.getUserProfile({
-      desc: '用于完善用户资料（昵称/头像）',
-      success(res) {
-        const info = res && res.userInfo ? res.userInfo : null
-        resolve({
-          nickname: info && (info.nickName || info.nickname) ? (info.nickName || info.nickname) : '',
-          avatarUrl: info && (info.avatarUrl || info.avatarURL) ? (info.avatarUrl || info.avatarURL) : '',
-        })
-      },
-      fail() {
-        resolve({})
-      },
-    })
-  })
-}
-
 function ensureLogin() {
   const existing = getUserToken()
   if (existing) return Promise.resolve(existing)
@@ -72,8 +50,7 @@ function ensureLogin() {
           return
         }
 
-        getUserProfileSafe()
-          .then((profile) => loginWithWechatCode(res.code, profile))
+        loginWithWechatCode(res.code, {})
           .then((data) => {
             const token = data && (data.userToken || data.token)
             if (token) setUserToken(token)
@@ -98,4 +75,28 @@ module.exports = {
   ensureLogin,
   getUserToken,
   setUserToken,
+  // 由用户手势触发：用于把用户填写/选择的昵称头像同步到后端（写入 wechat_user）
+  loginAndSyncProfile(profile) {
+    return new Promise((resolve) => {
+      wx.login({
+        success(res) {
+          const code = res && res.code ? res.code : ''
+          if (!code) {
+            resolve('')
+            return
+          }
+          loginWithWechatCode(code, profile || {})
+            .then((data) => {
+              const token = data && (data.userToken || data.token)
+              if (token) setUserToken(token)
+              resolve(token || '')
+            })
+            .catch(() => resolve(''))
+        },
+        fail() {
+          resolve('')
+        },
+      })
+    })
+  },
 }
