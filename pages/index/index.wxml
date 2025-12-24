@@ -26,7 +26,10 @@
     </swiper>
 
     <view class="section">
-      <text class="section-title">{{labels.recommend}}</text>
+      <view class="section-head">
+        <text class="section-title">{{labels.recommend}}</text>
+        <button size="mini" class="view-all" bindtap="onTapViewAll">{{labels.viewAll}}</button>
+      </view>
       <block wx:if="{{recommended.length === 0 && !loading}}">
         <view class="empty">{{labels.empty}}</view>
       </block>

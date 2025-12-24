@@ -2,6 +2,7 @@ module.exports = {
   common: {
     loading: 'Loading',
     networkError: 'Network error, please try again later',
+    needLogin: 'Please login',
   },
   nav: {
     favorites: 'Favorites',
@@ -17,6 +18,7 @@ module.exports = {
       all: 'All',
       search: 'Search',
       recommend: 'Recommended',
+      viewAll: 'View all',
       empty: 'No products',
       loadMore: 'Load more',
       noMore: 'No more',
@@ -31,9 +33,12 @@ module.exports = {
     },
     contact: {
       title: 'Contact',
-      wechatId: 'WeChat',
-      copy: 'Copy',
-      copied: 'Copied',
+      scanHint: 'Scan the QR code',
+      processTitle: 'Purchase process',
+      step1: 'Scan the QR code to contact us',
+      step2: 'Choose the product and confirm details',
+      step3: 'Pay and provide shipping information',
+      step4: 'We ship after confirmation',
     },
     about: {
       title: 'About',

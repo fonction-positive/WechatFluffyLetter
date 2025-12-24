@@ -2,6 +2,7 @@ module.exports = {
   common: {
     loading: '加载中',
     networkError: '网络异常，请稍后重试',
+    needLogin: '请先登录',
   },
   nav: {
     favorites: '收藏',
@@ -17,6 +18,7 @@ module.exports = {
       all: '全部',
       search: '搜索',
       recommend: '推荐商品',
+      viewAll: '查看全部',
       empty: '暂无商品',
       loadMore: '加载更多',
       noMore: '没有更多了',
@@ -31,9 +33,12 @@ module.exports = {
     },
     contact: {
       title: '联系我们',
-      wechatId: '微信号',
-      copy: '复制',
-      copied: '已复制',
+      scanHint: '扫码添加微信',
+      processTitle: '购买流程',
+      step1: '扫码添加微信',
+      step2: '选择商品并确认款式/数量',
+      step3: '付款并填写收货信息',
+      step4: '确认无误后发货',
     },
     about: {
       title: '关于我们',

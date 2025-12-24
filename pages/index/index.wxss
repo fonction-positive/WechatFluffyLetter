@@ -50,12 +50,24 @@
   padding: 20rpx;
 }
 
+.section-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16rpx;
+  margin-bottom: 16rpx;
+}
+
 .section-title {
   display: block;
   font-size: 30rpx;
   font-weight: 600;
   color: black;
-  margin-bottom: 16rpx;
+}
+
+.view-all {
+  padding: 0 14rpx;
+  line-height: 1.8;
 }
 
 .empty,

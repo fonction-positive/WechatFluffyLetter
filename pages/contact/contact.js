@@ -11,9 +11,12 @@ Page({
     },
     labels: {
       title: t('pages.contact.title', 'Contact'),
-      wechatId: t('pages.contact.wechatId', 'WeChat'),
-      copy: t('pages.contact.copy', 'Copy'),
-      copied: t('pages.contact.copied', 'Copied'),
+      scanHint: t('pages.contact.scanHint', 'Scan the QR code'),
+      processTitle: t('pages.contact.processTitle', 'Purchase process'),
+      step1: t('pages.contact.step1', 'Scan the QR code to contact us'),
+      step2: t('pages.contact.step2', 'Choose the product and confirm details'),
+      step3: t('pages.contact.step3', 'Pay and provide shipping information'),
+      step4: t('pages.contact.step4', 'We ship after confirmation'),
       loading: t('common.loading', 'Loading'),
     },
   },
@@ -34,9 +37,12 @@ Page({
       lang: getLang(),
       labels: {
         title: t('pages.contact.title', 'Contact'),
-        wechatId: t('pages.contact.wechatId', 'WeChat'),
-        copy: t('pages.contact.copy', 'Copy'),
-        copied: t('pages.contact.copied', 'Copied'),
+        scanHint: t('pages.contact.scanHint', 'Scan the QR code'),
+        processTitle: t('pages.contact.processTitle', 'Purchase process'),
+        step1: t('pages.contact.step1', 'Scan the QR code to contact us'),
+        step2: t('pages.contact.step2', 'Choose the product and confirm details'),
+        step3: t('pages.contact.step3', 'Pay and provide shipping information'),
+        step4: t('pages.contact.step4', 'We ship after confirmation'),
         loading: t('common.loading', 'Loading'),
       },
     })
@@ -59,15 +65,5 @@ Page({
       .finally(() => {
         this.setData({ loading: false })
       })
-  },
-  onCopy() {
-    const text = this.data.contact.wechatId
-    if (!text) return
-    wx.setClipboardData({
-      data: text,
-      success: () => {
-        wx.showToast({ title: this.data.labels.copied, icon: 'none' })
-      },
-    })
   },
 })

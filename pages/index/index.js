@@ -14,6 +14,7 @@ Page({
       favorites: t('pages.favorites.title', 'Favorites'),
       contact: t('pages.contact.title', 'Contact'),
       recommend: t('pages.index.recommend', 'Recommended'),
+      viewAll: t('pages.index.viewAll', 'View all'),
       empty: t('pages.index.empty', 'No products'),
       loading: t('common.loading', 'Loading'),
       favorited: t('pages.product.favorited', 'Favorited'),
@@ -55,6 +56,7 @@ Page({
         favorites: t('pages.favorites.title', 'Favorites'),
         contact: t('pages.contact.title', 'Contact'),
         recommend: t('pages.index.recommend', 'Recommended'),
+        viewAll: t('pages.index.viewAll', 'View all'),
         empty: t('pages.index.empty', 'No products'),
         loading: t('common.loading', 'Loading'),
         favorited: t('pages.product.favorited', 'Favorited'),
@@ -78,6 +80,9 @@ Page({
     const id = e.currentTarget.dataset.id
     if (!id) return
     wx.navigateTo({ url: `/pages/product-detail/product-detail?id=${id}` })
+  },
+  onTapViewAll() {
+    wx.navigateTo({ url: '/pages/category/category' })
   },
   loadHome() {
     this.setData({ loading: true })

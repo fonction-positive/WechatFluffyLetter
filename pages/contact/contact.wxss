@@ -3,37 +3,69 @@ page {
 }
 
 .page {
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
   padding: 20rpx;
 }
 
-.block {
+.qr-card,
+.process-card {
   border: 1px solid rgba(0, 0, 0, 0.08);
   border-radius: 16rpx;
   padding: 16rpx;
-  margin-bottom: 16rpx;
 }
 
-.row {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-}
-
-.label {
-  color: #aaa;
-  font-size: 26rpx;
-}
-
-.value {
+.top {
   flex: 1;
-  color: black;
-  font-size: 28rpx;
+  display: flex;
+}
+
+.bottom {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  margin-top: 16rpx;
+}
+
+.qr-card {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
 }
 
 .qrcode {
   width: 100%;
-  height: 600rpx;
+  height: 520rpx;
   background: rgba(0, 0, 0, 0.04);
+}
+
+.qrcode-placeholder {
+  width: 100%;
+  height: 520rpx;
+  background: rgba(0, 0, 0, 0.04);
+}
+
+.qr-hint {
+  color: #aaa;
+  font-size: 26rpx;
+}
+
+.process-title {
+  display: block;
+  font-size: 30rpx;
+  font-weight: 600;
+  color: black;
+  margin-bottom: 12rpx;
+}
+
+.step {
+  color: black;
+  font-size: 28rpx;
+  line-height: 1.8;
 }
 
 .loading {

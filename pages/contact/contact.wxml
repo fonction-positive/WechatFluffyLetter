@@ -1,15 +1,21 @@
 <view class="page">
-  <view class="block">
-    <view class="row">
-      <text class="label">{{labels.wechatId}}</text>
-      <text class="value">{{contact.wechatId}}</text>
-      <button size="mini" bindtap="onCopy" wx:if="{{contact.wechatId}}">{{labels.copy}}</button>
+  <view class="top">
+    <view class="qr-card">
+      <image wx:if="{{contact.qrcodeUrl}}" class="qrcode" mode="aspectFit" src="{{contact.qrcodeUrl}}"></image>
+      <view wx:else class="qrcode-placeholder"></view>
+      <text class="qr-hint">{{labels.scanHint}}</text>
     </view>
   </view>
 
-  <view class="block" wx:if="{{contact.qrcodeUrl}}">
-    <image class="qrcode" mode="aspectFit" src="{{contact.qrcodeUrl}}"></image>
-  </view>
+  <view class="bottom">
+    <view class="process-card">
+      <text class="process-title">{{labels.processTitle}}</text>
+      <view class="step">1. {{labels.step1}}</view>
+      <view class="step">2. {{labels.step2}}</view>
+      <view class="step">3. {{labels.step3}}</view>
+      <view class="step">4. {{labels.step4}}</view>
+    </view>
 
-  <view class="loading" wx:if="{{loading}}">{{labels.loading}}</view>
+    <view class="loading" wx:if="{{loading}}">{{labels.loading}}</view>
+  </view>
 </view>
