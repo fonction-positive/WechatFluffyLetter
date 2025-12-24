@@ -10,7 +10,6 @@ import org.springframework.web.multipart.MultipartFile;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.time.LocalDate;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Set;
@@ -59,21 +58,18 @@ public class AdminUploadController {
 
         Path root = Path.of(fluffyProperties.getUpload().getDir()).toAbsolutePath().normalize();
         String pid = productId == null ? "tmp" : String.valueOf(productId);
-        LocalDate now = LocalDate.now();
 
         Path dir = root
-                .resolve("products")
-                .resolve(pid)
-                .resolve(String.valueOf(now.getYear()))
-                .resolve(String.format("%02d", now.getMonthValue()));
+            .resolve("products")
+            .resolve(pid);
         Files.createDirectories(dir);
 
         String filename = UUID.randomUUID() + "." + ext;
         Path target = dir.resolve(filename);
         file.transferTo(target);
 
-        // URL path: /uploads/products/{pid}/{yyyy}/{MM}/{file}
-        String urlPath = "/uploads/products/" + pid + "/" + now.getYear() + "/" + String.format("%02d", now.getMonthValue()) + "/" + filename;
+        // URL path: /uploads/products/{pid}/{file}
+        String urlPath = "/uploads/products/" + pid + "/" + filename;
 
         String origin = request.getHeader("Origin");
         return Map.of(

@@ -163,7 +163,12 @@ public class AdminProductService {
             if (!rel.startsWith(TMP_REL_PREFIX)) continue;
 
             String tail = rel.substring(TMP_REL_PREFIX.length());
-            String targetRel = "products/" + productId + "/" + tail;
+            String fileNameOnly = lastPathSegment(tail);
+            if (!StringUtils.hasText(fileNameOnly)) {
+                throw new IllegalArgumentException("invalid tmp image url: " + urlPath);
+            }
+
+            String targetRel = "products/" + productId + "/" + fileNameOnly;
 
             Path source = root.resolve(rel).normalize();
             Path target = root.resolve(targetRel).normalize();
@@ -182,6 +187,14 @@ public class AdminProductService {
 
             img.setImageUrl(UPLOAD_PREFIX + targetRel);
         }
+    }
+
+    private static String lastPathSegment(String path) {
+        if (!StringUtils.hasText(path)) return "";
+        String p = path.trim();
+        while (p.endsWith("/")) p = p.substring(0, p.length() - 1);
+        int slash = p.lastIndexOf('/');
+        return slash < 0 ? p : p.substring(slash + 1);
     }
 
     private static String extractUrlPath(String rawUrl) {
