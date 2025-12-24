@@ -22,8 +22,8 @@ public class AuthController {
 
     @PostMapping("/wechat")
     public WechatLoginResponse wechatLogin(@Valid @RequestBody WechatLoginRequest req) {
-        WechatUser user = wechatAuthService.loginOrCreateByCode(req.getCode());
+        WechatUser user = wechatAuthService.loginOrCreateByCode(req.getCode(), req.getNickname(), req.getAvatarUrl());
         String token = jwtService.issueUserToken(user.getId(), user.getOpenid());
-        return new WechatLoginResponse(token, user.getOpenid());
+        return new WechatLoginResponse(token, user.getOpenid(), user.getNickname(), user.getAvatarUrl());
     }
 }

@@ -42,7 +42,11 @@
       return `
         <tr>
           <td>${preview}</td>
-          <td><input data-img-url="${idx}" value="${escapeHtml(img.imageUrl || '')}" placeholder="https://..." /></td>
+          <td>
+            <input data-img-file="${idx}" type="file" accept="image/*" />
+            <div class="muted" style="margin-top:4px;">选择后自动上传</div>
+          </td>
+          <td><input data-img-url="${idx}" value="${escapeHtml(img.imageUrl || '')}" placeholder="上传后自动填充" readonly /></td>
           <td><input data-img-sort="${idx}" type="number" value="${img.sortOrder ?? 0}" /></td>
           <td>
             <select data-img-cover="${idx}">
@@ -54,6 +58,20 @@
         </tr>
       `;
     }).join('') || '<tr><td colspan="5" class="muted">暂无图片</td></tr>';
+  }
+
+  async function uploadImage(idx, file) {
+    if (!file) return;
+    Admin.toast('');
+    const fd = new FormData();
+    fd.append('file', file);
+
+    const qs = id ? `?productId=${encodeURIComponent(id)}` : '';
+    const resp = await Admin.api(`/admin/uploads/product-image${qs}`, { method: 'POST', body: fd });
+    const url = resp && (resp.url || resp.imageUrl);
+    if (!url) throw new Error('upload response missing url');
+    images[idx].imageUrl = url;
+    renderImages();
   }
 
   async function loadCategories() {
@@ -168,10 +186,25 @@
     const urlIdx = t.getAttribute('data-img-url');
     const sortIdx = t.getAttribute('data-img-sort');
     const coverIdx = t.getAttribute('data-img-cover');
-    if (urlIdx != null) images[Number(urlIdx)].imageUrl = t.value;
+    // imageUrl 现在由上传接口生成，保持只读
     if (sortIdx != null) images[Number(sortIdx)].sortOrder = Number(t.value || 0);
     if (coverIdx != null) images[Number(coverIdx)].cover = t.value === 'true';
-    if (urlIdx != null) renderImages();
+  });
+
+  imgRowsEl.addEventListener('change', (ev) => {
+    const t = ev.target;
+    if (!(t instanceof HTMLElement)) return;
+    const fileIdx = t.getAttribute('data-img-file');
+    if (fileIdx != null) {
+      const idx = Number(fileIdx);
+      const input = t;
+      const files = input.files;
+      const file = files && files[0] ? files[0] : null;
+      if (!file) return;
+      uploadImage(idx, file)
+        .then(() => Admin.toast('上传成功'))
+        .catch((e) => Admin.toast(`上传失败：${e && e.message ? e.message : '未知错误'}`, 'danger'));
+    }
   });
   saveBtn.addEventListener('click', save);
 

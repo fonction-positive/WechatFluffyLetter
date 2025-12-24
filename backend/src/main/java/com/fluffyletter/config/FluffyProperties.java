@@ -8,6 +8,7 @@ public class FluffyProperties {
     private final Wechat wechat = new Wechat();
     private final Jwt jwt = new Jwt();
     private final Admin admin = new Admin();
+    private final Upload upload = new Upload();
 
     public Wechat getWechat() {
         return wechat;
@@ -19,6 +20,10 @@ public class FluffyProperties {
 
     public Admin getAdmin() {
         return admin;
+    }
+
+    public Upload getUpload() {
+        return upload;
     }
 
     public static class Wechat {
@@ -102,6 +107,22 @@ public class FluffyProperties {
             public void setRole(String role) {
                 this.role = role;
             }
+        }
+    }
+
+    public static class Upload {
+        /**
+         * 本地上传文件存储根目录。
+         * 例如：/data/uploads（Docker 建议挂载 volume）
+         */
+        private String dir = "uploads";
+
+        public String getDir() {
+            return dir;
+        }
+
+        public void setDir(String dir) {
+            this.dir = dir;
         }
     }
 }

@@ -16,7 +16,7 @@ function getUserToken() {
   return inMemory || wx.getStorageSync(CONFIG.STORAGE_KEYS.USER_TOKEN) || ''
 }
 
-function loginWithWechatCode(code) {
+function loginWithWechatCode(code, profile) {
   if (!getBaseUrl()) {
     // 没配置后端域名时，不阻塞开发（但收藏/用户相关接口会不可用）
     return Promise.resolve({
@@ -29,8 +29,34 @@ function loginWithWechatCode(code) {
   return request({
     path: CONFIG.API.WECHAT_LOGIN,
     method: 'POST',
-    data: { code },
+    data: {
+      code,
+      nickname: profile && profile.nickname ? profile.nickname : '',
+      avatarUrl: profile && profile.avatarUrl ? profile.avatarUrl : '',
+    },
     showLoading: false,
+  })
+}
+
+function getUserProfileSafe() {
+  return new Promise((resolve) => {
+    if (!wx.getUserProfile) {
+      resolve({})
+      return
+    }
+    wx.getUserProfile({
+      desc: '用于完善用户资料（昵称/头像）',
+      success(res) {
+        const info = res && res.userInfo ? res.userInfo : null
+        resolve({
+          nickname: info && (info.nickName || info.nickname) ? (info.nickName || info.nickname) : '',
+          avatarUrl: info && (info.avatarUrl || info.avatarURL) ? (info.avatarUrl || info.avatarURL) : '',
+        })
+      },
+      fail() {
+        resolve({})
+      },
+    })
   })
 }
 
@@ -46,7 +72,8 @@ function ensureLogin() {
           return
         }
 
-        loginWithWechatCode(res.code)
+        getUserProfileSafe()
+          .then((profile) => loginWithWechatCode(res.code, profile))
           .then((data) => {
             const token = data && (data.userToken || data.token)
             if (token) setUserToken(token)

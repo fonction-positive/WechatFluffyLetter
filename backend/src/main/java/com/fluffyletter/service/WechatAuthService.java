@@ -27,6 +27,10 @@ public class WechatAuthService {
     }
 
     public WechatUser loginOrCreateByCode(String code) {
+        return loginOrCreateByCode(code, null, null);
+    }
+
+    public WechatUser loginOrCreateByCode(String code, String nickname, String avatarUrl) {
         if (code == null || code.isBlank()) {
             throw new IllegalArgumentException("code is required");
         }
@@ -87,12 +91,32 @@ public class WechatAuthService {
 
         String openid = String.valueOf(openidObj);
 
-        return userRepository.findByOpenid(openid)
+        WechatUser u = userRepository.findByOpenid(openid)
                 .orElseGet(() -> {
-                    WechatUser u = new WechatUser();
-                    u.setOpenid(openid);
-                    return userRepository.save(u);
+                    WechatUser nu = new WechatUser();
+                    nu.setOpenid(openid);
+                    return userRepository.save(nu);
                 });
+
+        boolean changed = false;
+        if (nickname != null) {
+            String nn = nickname.trim();
+            if (!nn.isBlank() && !nn.equals(u.getNickname())) {
+                u.setNickname(nn);
+                changed = true;
+            }
+        }
+        if (avatarUrl != null) {
+            String av = avatarUrl.trim();
+            if (!av.isBlank() && !av.equals(u.getAvatarUrl())) {
+                u.setAvatarUrl(av);
+                changed = true;
+            }
+        }
+        if (changed) {
+            u = userRepository.save(u);
+        }
+        return u;
     }
 
     private static String snippet(String s) {
